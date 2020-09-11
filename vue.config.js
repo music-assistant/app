@@ -21,6 +21,6 @@ module.exports = {
   transpileDependencies: [
     'vuetify'
   ],
-  outputDir: '../../music-assistant.github.io/app',
+  outputDir: 'docs',
   publicPath: ''
 }

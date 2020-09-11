@@ -14,6 +14,7 @@ npm run serve
 ```
 npm run build
 ```
+Note: Builds the production version into the /docs subfolder for compatability with Github pages.
 
 ### Lints and fixes files
 ```
