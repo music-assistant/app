@@ -1,6 +1,8 @@
-# This workflow will build the Vue app into the /docs folder
+# This workflow will check the Vue 
 on:
   push:
+    branches: [master]
+  pull_request:
     branches: [master]
 
 env:
@@ -19,13 +21,6 @@ jobs:
     - name: npm install, build, and test
       run: |
         npm install
-        npm run build
-    - name: publish latest version to docs
-      run: |
-        git config user.email "marcelveldt@users.noreply.github.com"
-        git config user.name "Github Action"
-        git add -A docs
-        git commit -m "publish latest app version"
-        git push
+        npm run lint
   
   

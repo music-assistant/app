@@ -82,7 +82,10 @@ export default {
         }
       ]
     }
-    this.getItemDetails()
+    if (this.$server.connected) {
+      this.getItemDetails()
+    }
+    this.$server.$on('refresh_listing', this.getItemDetails)
   },
   methods: {
     async getItemDetails () {
