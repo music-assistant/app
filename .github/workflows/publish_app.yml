@@ -16,7 +16,7 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ env.NODE_VERSION }}
-    - name: npm install, build, and test
+    - name: npm install and build
       run: |
         npm install
         npm run build
@@ -38,12 +38,13 @@ jobs:
         git config user.name "github-actions[bot]"
         git add -A music_assistant/web
         git commit -m "publish latest app version"
-    - name: Push latest app to server repository
-      uses: ad-m/github-push-action@master
-      if: always()
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        repository: git://github.com/music-assistant/server.git
-        directory: /tmp/mass-server
+        git push "https://${{GITHUB_ACTOR}}:${{ secrets.GITHUB_TOKEN }}@github.com/music-assistant/server.git"
+    # - name: Push latest app to server repository
+    #   uses: ad-m/github-push-action@master
+    #   if: always()
+    #   with:
+    #     github_token: ${{ secrets.GITHUB_TOKEN }}
+    #     repository: git://github.com/music-assistant/server.git
+    #     directory: /tmp/mass-server
   
   
