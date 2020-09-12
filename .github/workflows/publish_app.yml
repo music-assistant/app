@@ -27,7 +27,7 @@ jobs:
         git add -A docs
         git commit -m "publish latest app version"
         git push
-    - name: publish latest version to server
+    - name: Commit latest app to server repository
       if: always()
       run: |
         git clone git://github.com/music-assistant/server.git /tmp/mass-server
@@ -38,6 +38,11 @@ jobs:
         git config user.name "github-actions[bot]"
         git add -A music_assistant/web
         git commit -m "publish latest app version"
-        git push
+    - name: Push latest app to server repository
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        repository: git://github.com/music-assistant/server.git
+        directory: /tmp/mass-server
   
   
