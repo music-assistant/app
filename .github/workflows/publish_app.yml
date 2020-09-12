@@ -38,7 +38,7 @@ jobs:
         git config user.name "github-actions[bot]"
         git add -A music_assistant/web
         git commit -m "publish latest app version"
-        git push "https://${GITHUB_ACTOR}:${secrets.GITHUB_TOKEN}@github.com/music-assistant/server.git"
+        git push "https://marcelveldt:${{ secrets.GITHUB_TOKEN }}@github.com/music-assistant/server.git"
     # - name: Push latest app to server repository
     #   uses: ad-m/github-push-action@master
     #   if: always()
