@@ -28,11 +28,12 @@ jobs:
         git commit -m "publish latest app version"
         git push
     - name: publish latest version to server
+      if: always()
       run: |
         git clone git://github.com/music-assistant/server.git /tmp/mass-server
-        cp docs /tmp/mass-server/music_assistant
+        cp -R docs /tmp/mass-server/music_assistant/
         cd /tmp/mass-server/
-        mv music_assistant/docs music_assistant/web
+        mv -R music_assistant/docs music_assistant/web
         git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
         git config user.name "github-actions[bot]"
         git add -A music_assistant/web
