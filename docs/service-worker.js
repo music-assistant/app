@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "precache-manifest.00368f2d750043b95a5b632b1bfc2418.js"
+  "precache-manifest.ed80260f1b0e26a8fbc0590b5b81b399.js"
 );
 
 workbox.core.setCacheNameDetails({prefix: "musicassistant-frontend"});
