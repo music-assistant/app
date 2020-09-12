@@ -107,6 +107,7 @@ export default {
         localStorage.setItem('serverAddress', this.serverAddress)
         localStorage.setItem('username', this.username)
         if (this.allowCredentialsSave) {
+          // storing password in localStorage is considered insecure so it's optional
           localStorage.setItem('password', this.password)
         }
       } else {
