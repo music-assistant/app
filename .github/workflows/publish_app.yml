@@ -40,6 +40,7 @@ jobs:
         git commit -m "publish latest app version"
     - name: Push latest app to server repository
       uses: ad-m/github-push-action@master
+      if: always()
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         repository: git://github.com/music-assistant/server.git
