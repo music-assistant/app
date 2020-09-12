@@ -118,6 +118,8 @@
     "server_empty": "Het serveradres kan niet leeg zijn.",
     "username_empty": "De gebruikersnaam kan niet leeg zijn.",
     "password_empty": "Het wachtwoord kan niet leeg zijn.",
-    "login_failed": "Kon niet inloggen, controleer of de server bereikbaar is en de inloggegevens juist zijn."
+    "login_failed": "Kon niet inloggen, controleer of de server bereikbaar is en de inloggegevens juist zijn.",
+    "scheme_missing": "Server adres moet beginnen met http:// of https://",
+    "logoff": "Uitloggen"
   }
 }

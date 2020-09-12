@@ -120,6 +120,8 @@
     "server_empty": "The server address can not be empty.",
     "username_empty": "The username can not be empty.",
     "password_empty": "The password can not be empty.",
-    "login_failed": "Could not login, please verify the credentials and that the server is available."
+    "login_failed": "Could not login, please verify the credentials and that the server is available.",
+    "scheme_missing": "Server address must start with http:// or https://",
+    "logoff": "Logoff"
   }
 }

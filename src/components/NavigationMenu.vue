@@ -9,6 +9,14 @@
           <v-list-item-title>{{ item.title }}</v-list-item-title>
         </v-list-item-content>
       </v-list-item>
+      <v-list-item @click="logOut()">
+        <v-list-item-action>
+          <v-icon>exit_to_app</v-icon>
+        </v-list-item-action>
+        <v-list-item-content>
+          <v-list-item-title>{{ this.$t('login.logoff') }}</v-list-item-title>
+        </v-list-item-content>
+      </v-list-item>
       <v-btn icon v-on:click="$store.showNavigationMenu=!$store.showNavigationMenu" />
     </v-list>
   </v-navigation-drawer>
@@ -34,6 +42,13 @@ export default Vue.extend({
     }
   },
   mounted () { },
-  methods: {}
+  methods: {
+    logOut () {
+      localStorage.setItem('serverAddress', '')
+      localStorage.setItem('username', '')
+      localStorage.setItem('password', '')
+      this.$router.go()
+    }
+  }
 })
 </script>

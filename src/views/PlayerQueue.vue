@@ -215,26 +215,30 @@ export default {
     },
     async activePlayerChanged () {
       /// get queue details once when we have a new active player
-      const endpoint = 'players/' + this.$server.activePlayerId + '/queue'
+      const queueId = this.$server.players[this.$server.activePlayerId].active_queue
+      const endpoint = 'players/' + queueId + '/queue'
       const queueDetails = await this.$server.getData(endpoint)
       await this.onQueueDetailsEvent(queueDetails)
       await this.onQueueItemsEvent(queueDetails)
     },
     async onQueueDetailsEvent (data) {
-      if (data.player_id === this.$server.activePlayerId) {
+      const queueId = this.$server.players[this.$server.activePlayerId].active_queue
+      if (data.player_id === queueId) {
         for (const [key, value] of Object.entries(data)) {
           Vue.set(this.playerQueueDetails, key, value)
         }
       }
     },
     async onQueueItemsEvent (data) {
-      if (data.player_id === this.$server.activePlayerId) {
+      const queueId = this.$server.players[this.$server.activePlayerId].active_queue
+      if (data.player_id === queueId) {
         const endpoint = 'players/' + data.player_id + '/queue/items'
         await this.$server.getAllItems(endpoint, this.items)
       }
     },
     sendQueueCommand (cmd, cmd_args = null) {
-      const endpoint = 'players/' + this.$server.activePlayerId + '/queue/' + cmd
+      const queueId = this.$server.players[this.$server.activePlayerId].active_queue
+      const endpoint = 'players/' + queueId + '/queue/' + cmd
       this.$server.putData(endpoint, cmd_args)
     }
   }

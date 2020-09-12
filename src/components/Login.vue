@@ -100,20 +100,6 @@ export default {
   },
   methods: {
     async submitLogin () {
-      // login form is submitted, validate input and try to connect
-      if (!this.serverAddress || !this.username) {
-        return
-      }
-      // try to fix some common mistakes
-      if (!this.serverAddress.startsWith('http')) {
-        // add default scheme if ommitted
-        this.serverAddress = 'http://' + this.serverAddress
-      }
-      const host = this.serverAddress.split('://')[1]
-      if (!host.includes(':')) {
-        // add default port if ommitted
-        this.serverAddress = this.serverAddress + ':8095'
-      }
       // connect to server
       if (await this.$server.connect(this.serverAddress, this.username, this.password)) {
         this.showLoginForm = false
@@ -163,7 +149,7 @@ export default {
       if (serverInfo !== false) {
         return localServerAddress
       }
-      return null
+      return ''
     }
   },
   async created () {
@@ -174,7 +160,7 @@ export default {
     if (!this.serverAddress) { this.serverAddress = await this.getDefaultServer() }
     if (!this.username) { this.username = 'admin' }
     if (!this.password) { this.password = '' }
-    // TODO: show warning in UI if default (blank) password in use
+    // TODO: show warning in UI if default (blank) password in use?
     if (await this.$server.connect(this.serverAddress, this.username, this.password) === true) {
       // server connected !
       this.showLoginForm = false
@@ -188,6 +174,10 @@ export default {
       const rules = []
       if (!this.serverAddress) {
         const rule = this.$t('login.server_empty')
+        rules.push(rule)
+      }
+      if (!(this.serverAddress.startsWith('http://') || this.serverAddress.startsWith('https://'))) {
+        const rule = this.$t('login.scheme_missing')
         rules.push(rule)
       }
       return rules

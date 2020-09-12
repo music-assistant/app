@@ -37,7 +37,7 @@ const server = new Vue({
     },
     async connect (serverAddress, username, password) {
       // Connect to the server
-      if (serverAddress && !serverAddress.endsWith('/')) {
+      if (!serverAddress.endsWith('/')) {
         serverAddress = serverAddress + '/'
       }
       const url = serverAddress + 'login'
