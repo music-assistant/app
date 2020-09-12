@@ -30,13 +30,13 @@ jobs:
     - name: Commit latest app to server repository
       if: always()
       run: |
-        git clone --single-branch --branch master "https://{{ $API_TOKEN_GITHUB }}@github.com/music-assistant/server.git" /tmp/mass-server
+        git clone --single-branch --branch master "https://${{ API_TOKEN_GITHUB }}@github.com/music-assistant/server.git" /tmp/mass-server
         cp -R docs /tmp/mass-server/music_assistant/
         cd /tmp/mass-server/
         mv music_assistant/docs music_assistant/web
         git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
         git config user.name "github-actions[bot]"
         git add -A music_assistant/web
-        git commit -m "publish latest app version ({{ $GITHUB_SHA }})"
+        git commit -m "publish latest app version (${{ GITHUB_SHA }})"
         git push origin master
   
