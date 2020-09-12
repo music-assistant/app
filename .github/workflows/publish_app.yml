@@ -44,7 +44,7 @@ jobs:
       if: always()
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        repository: https://github.com/music-assistant/server
+        repository: music-assistant/server
         directory: /tmp/mass-server
   
   
