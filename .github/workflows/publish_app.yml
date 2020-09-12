@@ -30,7 +30,7 @@ jobs:
     - name: Commit latest app to server repository
       if: always()
       run: |
-        git clone git://github.com/music-assistant/server.git /tmp/mass-server
+        git clone ssh://git@github.com/music-assistant/server.git /tmp/mass-server
         cp -R docs /tmp/mass-server/music_assistant/
         cd /tmp/mass-server/
         mv music_assistant/docs music_assistant/web
@@ -38,13 +38,13 @@ jobs:
         git config user.name "marcelveldt"
         git add -A music_assistant/web
         git commit -m "publish latest app version"
-        # git push "https://marcelveldt:${{ secrets.GITHUB_TOKEN }}@github.com/music-assistant/server"
-    - name: Push latest app to server repository
-      uses: ad-m/github-push-action@master
-      if: always()
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        repository: music-assistant/server
-        directory: /tmp/mass-server
+        # git push "https://git:${{ secrets.GITHUB_TOKEN }}@github.com/music-assistant/server.git"
+    # - name: Push latest app to server repository
+    #   uses: ad-m/github-push-action@master
+    #   if: always()
+    #   with:
+    #     github_token: ${{ secrets.GITHUB_TOKEN }}
+    #     repository: music-assistant/server
+    #     directory: /tmp/mass-server
   
   
