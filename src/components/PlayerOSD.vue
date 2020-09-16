@@ -66,8 +66,8 @@
           >
             <template v-slot:activator="{ on }">
               <v-btn icon v-on="on">
-              <v-img contain v-if="streamDetails.quality > 6" :src="require('../assets/hires.png')" height="30" />
-              <v-img contain v-if="streamDetails.quality <= 6" :src="streamDetails.content_type ? require('../assets/' + streamDetails.content_type + '.png') : ''" height="30" style='filter: invert(100%);' />
+              <v-img contain v-if="streamDetails.bit_depth > 16" :src="require('../assets/hires.png')" height="30" />
+              <v-img contain v-if="streamDetails.bit_depth <= 16" :src="streamDetails.content_type ? require('../assets/' + streamDetails.content_type + '.png') : ''" height="30" style='filter: invert(100%);margin-right:10px' />
               </v-btn>
             </template>
             <v-list v-if="streamDetails">
@@ -319,6 +319,7 @@ export default Vue.extend({
   },
   created () {
     this.$server.$on('queue updated', this.queueUpdatedMsg)
+    this.$server.$on('queue time updated', this.queueUpdatedMsg)
     this.$server.$on('new player selected', this.getQueueDetails)
   },
   methods: {

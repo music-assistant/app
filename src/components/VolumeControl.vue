@@ -70,7 +70,7 @@ export default Vue.extend({
     volumePlayerIds () {
       var allIds = [this.player_id]
       for (const groupChildId of this.players[this.player_id].group_childs) {
-        if (this.players[groupChildId]) {
+        if (this.players[groupChildId] && this.players[groupChildId].available) {
           allIds.push(groupChildId)
         }
       }

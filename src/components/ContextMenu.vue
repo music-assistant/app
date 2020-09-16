@@ -103,9 +103,9 @@ export default Vue.extend({
         })
       }
       // remove from playlist (playlist tracks only)
-      if (curBrowseContext && curBrowseContext.media_type === 4) {
+      if (curBrowseContext && curBrowseContext.media_type === 'playlist') {
         this.curPlaylist = curBrowseContext
-        if (mediaItem.media_type === 3 && curBrowseContext.is_editable) {
+        if (mediaItem.media_type === 'track' && curBrowseContext.is_editable) {
           menuItems.push({
             label: 'remove_playlist',
             action: 'remove_playlist',
@@ -114,7 +114,7 @@ export default Vue.extend({
         }
       }
       // add to playlist action (tracks only)
-      if (mediaItem.media_type === 3) {
+      if (mediaItem.media_type === 'track') {
         menuItems.push({
           label: 'add_playlist',
           action: 'add_playlist',
@@ -179,12 +179,7 @@ export default Vue.extend({
     itemCommand (cmd) {
       if (cmd === 'info') {
         // show media info
-        let endpoint = ''
-        if (this.curItem.media_type === 1) endpoint = 'artists'
-        if (this.curItem.media_type === 2) endpoint = 'albums'
-        if (this.curItem.media_type === 3) endpoint = 'tracks'
-        if (this.curItem.media_type === 4) endpoint = 'playlists'
-        if (this.curItem.media_type === 5) endpoint = 'radios'
+        const endpoint = this.curItem.media_type + 's'
         this.$router.push({
           path: '/' + endpoint + '/' + this.curItem.item_id,
           query: { provider: this.curItem.provider }

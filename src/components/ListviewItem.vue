@@ -174,14 +174,14 @@ export default Vue.extend({
   computed: {
     isHiRes () {
       for (var prov of this.item.provider_ids) {
-        if (prov.quality > 6) {
+        if (prov.quality.includes('hi_res')) {
           if (prov.details) {
             return prov.details
-          } else if (prov.quality === 7) {
+          } else if (prov.quality === 'flac_lossless_hi_res_1') {
             return '44.1/48khz 24 bits'
-          } else if (prov.quality === 8) {
+          } else if (prov.quality === 'flac_lossless_hi_res_2') {
             return '88.2/96khz 24 bits'
-          } else if (prov.quality === 9) {
+          } else if (prov.quality === 'flac_lossless_hi_res_3') {
             return '176/192khz 24 bits'
           } else {
             return '+192kHz 24 bits'
@@ -200,11 +200,11 @@ export default Vue.extend({
     itemClicked (mediaItem = null) {
       // mediaItem in the list is clicked
       let url = ''
-      if (mediaItem.media_type === 1) {
+      if (mediaItem.media_type === 'artist') {
         url = '/artists/' + mediaItem.item_id
-      } else if (mediaItem.media_type === 2) {
+      } else if (mediaItem.media_type === 'album') {
         url = '/albums/' + mediaItem.item_id
-      } else if (mediaItem.media_type === 4) {
+      } else if (mediaItem.media_type === 'playlist') {
         url = '/playlists/' + mediaItem.item_id
       } else {
         // assume track (or radio) item

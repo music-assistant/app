@@ -89,12 +89,12 @@
           >
             <ListviewItem
               v-bind:item="item"
-              :hideavatar="item.media_type == 3 ? $store.isMobile : false"
+              :hideavatar="item.media_type == 'track' ? $store.isMobile : false"
               :hidetracknum="true"
-              :hideproviders="item.media_type < 4 ? $store.isMobile : false"
+              :hideproviders="item.media_type in ['artist', 'album', 'track'] ? $store.isMobile : false"
               :hidelibrary="true"
-              :hidemenu="item.media_type == 3 ? $store.isMobile : false"
-              :hideduration="item.media_type == 5"
+              :hidemenu="item.media_type == 'track' ? $store.isMobile : false"
+              :hideduration="item.media_type == 'radio'"
             ></ListviewItem>
           </RecycleScroller>
         </v-list>
