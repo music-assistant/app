@@ -45,6 +45,7 @@
     "sonos"                            : "Sonos",
     "webplayer"                        : "Web Player (alleen Chrome browser)",
     "demo_player"                      : "Demo/Test player provider",
+    "group_player"                     : "Group Player Creator",
     "username"                         : "Gebruikersnaam",
     "password"                         : "Wachtwoord",
     "hostname"                         : "Hostnaam (of IP)",
@@ -79,7 +80,9 @@
     "gapless_enabled"                  : "Schakel ondersteuning voor gapless in.",
     "crossfade_duration"               : "Crossfade (in seconden, 0 om uit te schakelen).",
     "power_control"                    : "Verbind Power Control met speler.",
-    "volume_control"                   : "Verbind Volume Control met speler."
+    "volume_control"                   : "Verbind Volume Control met speler.",
+    "groupplayer_player_count"         : "Aantal groepsspelers",
+    "groupplayer_players"              : "Onderliggende spelers in deze groep"
   },
   "players"         : "Spelers",
   "play"            : "Afspelen",
