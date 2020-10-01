@@ -3,7 +3,7 @@
   <img
     v-for="prov of uniqueProviders" :key="prov.provider"
     :height="height"
-    :src="require('../assets/' + prov.provider + '.png')"
+    :src="$server.getProviderIconUrl(prov.provider)"
     style="margin-right:6px;margin-top:6px;"
   />
   </div>

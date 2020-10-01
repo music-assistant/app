@@ -98,6 +98,10 @@ const server = new Vue({
       } else return ''
     },
 
+    getProviderIconUrl (providerId) {
+      return `${this._address}api/providers/${providerId}/icon`
+    },
+
     async getData (endpoint, params = {}) {
       // get data from the server
       const url = this._address + 'api/' + endpoint
@@ -190,11 +194,13 @@ const server = new Vue({
     async _onWsMessage (e) {
       // Message retrieved on the websocket
       var msg = JSON.parse(e.data)
+      Vue.$log.debug(msg.message, msg.message_details)
       if (msg.message === 'login') {
         // login was successfull
         Vue.$log.info('Connected to websocket ' + this._address)
         this.connected = true
         this.$emit('refresh_listing')
+        this.$emit('connected')
         // register callbacks
         this._ws.send(JSON.stringify({ message: 'add_event_listener' }))
       } else if (msg.message === 'player changed') {

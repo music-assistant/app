@@ -10,6 +10,7 @@ import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 import vuetify from './plugins/vuetify'
 import store from './plugins/store'
 import server from './plugins/server'
+// import mediaPlayer from './plugins/media_player'
 import '@babel/polyfill'
 import VueLogger from 'vuejs-logger'
 
@@ -29,6 +30,7 @@ Vue.use(VueLogger, loggerOptions)
 Vue.use(VueVirtualScroller)
 Vue.use(store)
 Vue.use(server)
+// Vue.use(mediaPlayer)
 
 // eslint-disable-next-line no-extend-native
 String.prototype.formatDuration = function () {

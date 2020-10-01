@@ -23,7 +23,6 @@
         <v-list-item-avatar tile v-if="curQueueItem">
           <img
             :src="$server.getImageUrl(curQueueItem)"
-            :lazy-src="require('../assets/file.png')"
             style="border: 1px solid rgba(0,0,0,.54);"
           />
         </v-list-item-avatar>
@@ -74,7 +73,7 @@
               <v-subheader class="title">{{ $t('stream_details') }}</v-subheader>
                 <v-list-item tile dense>
                   <v-list-item-icon>
-                    <v-img max-width="50" contain :src="streamDetails.provider ? require('../assets/' + streamDetails.provider + '.png') : ''" />
+                    <v-img max-width="50" contain :src="streamDetails.provider ? $server.getProviderIconUrl(streamDetails.provider) : ''" />
                   </v-list-item-icon>
                   <v-list-item-content>
                     <v-list-item-title>{{ streamDetails.provider }}</v-list-item-title>

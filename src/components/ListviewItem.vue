@@ -10,7 +10,6 @@
       <v-list-item-avatar tile color="grey" v-if="!hideavatar">
         <img
           :src="$server.getImageUrl(item, 'image', 80)"
-          :lazy-src="require('../assets/file.png')"
           style="border: 1px solid rgba(0,0,0,.22);"
         />
       </v-list-item-avatar>
