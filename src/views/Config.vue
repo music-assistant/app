@@ -48,7 +48,7 @@
                 />
               </v-list-item-avatar>
               <v-list-item-content>
-                <v-list-item-title>{{ conf_key }}</v-list-item-title>
+                <v-list-item-title>{{ conf_value['__name__']['label'] }}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
             <v-list-item v-if="['player_providers', 'music_providers', 'metadata_providers', 'plugins'].includes(configKey)">
@@ -233,7 +233,7 @@ export default {
       this.$store.windowtitle += ' | ' + this.$t('conf.' + this.configKey)
     }
     this.getConfig()
-    this.$server.$on('refresh_listing', this.getConfig)
+    this.$server.$on('connected', this.getConfig)
     this.$server.$on('config changed', this.getConfig)
     this.$server.$on('player changed', this.getConfig)
   },

@@ -1,7 +1,7 @@
 <template>
 
   <v-dialog
-    :value="showLoginForm"
+    :value="$store.showLoginForm"
     persistent
     max-width="600px"
   >
@@ -89,7 +89,6 @@ export default {
   data () {
     return {
       servers: [],
-      showLoginForm: false,
       serverAddress: '',
       username: '',
       password: '',
@@ -101,8 +100,8 @@ export default {
   methods: {
     async submitLogin () {
       // connect to server
-      if (await this.$server.connect(this.serverAddress, this.username, this.password)) {
-        this.showLoginForm = false
+      if (await this.$server.login(this.serverAddress, this.username, this.password)) {
+        this.$store.showLoginForm = false
         // store new values in browser storage at successfull login
         localStorage.setItem('serverAddress', this.serverAddress)
         localStorage.setItem('username', this.username)
@@ -111,7 +110,7 @@ export default {
           localStorage.setItem('password', this.password)
         }
       } else {
-        this.showLoginForm = true
+        this.$store.showLoginForm = true
         this.connectError = this.$t('login.login_failed')
       }
     },
@@ -162,12 +161,12 @@ export default {
     if (!this.username) { this.username = 'admin' }
     if (!this.password) { this.password = '' }
     // TODO: show warning in UI if default (blank) password in use?
-    if (await this.$server.connect(this.serverAddress, this.username, this.password) === true) {
+    if (await this.$server.login(this.serverAddress, this.username, this.password) === true) {
       // server connected !
-      this.showLoginForm = false
+      this.$store.showLoginForm = false
     } else {
       // connect failed or no credentials stored, show dialog
-      this.showLoginForm = true
+      this.$store.showLoginForm = true
     }
   },
   computed: {

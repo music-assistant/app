@@ -85,6 +85,7 @@ export default {
     if (this.$server.connected) {
       this.getItemDetails()
     }
+    this.$server.$on('connected', this.getItemDetails)
     this.$server.$on('refresh_listing', this.getItemDetails)
   },
   methods: {

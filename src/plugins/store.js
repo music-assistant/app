@@ -9,7 +9,8 @@ const globalStore = new Vue({
       topBarTransparent: false,
       topBarContextItem: null,
       isMobile: false,
-      isInStandaloneMode: false
+      isInStandaloneMode: false,
+      showLoginForm: false
     }
   },
   created () {

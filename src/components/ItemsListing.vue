@@ -162,6 +162,7 @@ export default {
     if (this.$server.connected) {
       this.getItems()
     }
+    this.$server.$on('connected', this.getItems)
     this.$server.$on('refresh_listing', this.getItems)
   },
   computed: {

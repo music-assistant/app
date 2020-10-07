@@ -137,7 +137,7 @@ export default {
     }
   },
   created () {
-    this.$server.$on('refresh_listing', this.Search)
+    this.$server.$on('connected', this.Search)
     this.$store.windowtitle = this.$t('search')
     this.Search()
   },
