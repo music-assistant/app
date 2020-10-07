@@ -13,7 +13,7 @@
           @click="$router.push('/config/' + conf_key)"
         >
           <v-list-item-icon style="margin-left:15px">
-                  <v-icon large>{{ conf_value.icon }}</v-icon>
+            <v-icon large>{{ conf_value.icon }}</v-icon>
           </v-list-item-icon>
           <v-list-item-content>
             <v-list-item-title>{{ conf_value.label }}</v-list-item-title>
@@ -87,10 +87,8 @@
               v-for="(conf_item_value, conf_item_key) in getCleanValues(conf_value)"
               :key="conf_item_key"
             >
-            <!-- label -->
-              <v-label
-                v-if="conf_item_value['entry_type'] == 'label' && conf_item_key != '__name__'"
-              >{{ conf_item_value['label'] }}</v-label>
+              <!-- label -->
+              <v-label v-if="conf_item_value['entry_type'] == 'label' && conf_item_key != '__name__'">{{ conf_item_value['label'] }}</v-label>
               <!-- boolean value: toggle switch -->
               <v-switch
                 v-if="conf_item_value['entry_type'] == 'boolean'"
@@ -159,13 +157,13 @@
                 :min="conf_item_value['range'][0]"
                 :max="conf_item_value['range'][1]"
               ><template v-slot:append>
-                <v-text-field
-                  v-model="conf_item_value['value']"
-                  class="mt-0 pt-0"
-                  type="number"
-                  style="width: 60px"
-                ></v-text-field>
-              </template>
+                  <v-text-field
+                    v-model="conf_item_value['value']"
+                    class="mt-0 pt-0"
+                    type="number"
+                    style="width: 60px"
+                  ></v-text-field>
+                </template>
               </v-slider>
             </v-list-item>
           </v-list>
@@ -229,19 +227,23 @@ export default {
       } else return this.conf
     }
   },
-  created () {
+  async created () {
     this.$store.windowtitle = this.$t('settings')
     if (this.configKey) {
       this.$store.windowtitle += ' | ' + this.$t('conf.' + this.configKey)
     }
     this.getConfig()
     this.$server.$on('refresh_listing', this.getConfig)
+    this.$server.$on('config changed', this.getConfig)
+    this.$server.$on('player changed', this.getConfig)
   },
   methods: {
     async getConfig () {
       if (!this.configKey || !this.$server.connected) return
       const language = navigator.language.split('-')[0]
-      const conf = await this.$server.getData('config/' + this.configKey, { lang: language })
+      const conf = await this.$server.getData('config/' + this.configKey, {
+        lang: language
+      })
       Vue.set(this.conf, this.configKey, conf)
     },
     async saveConfig (baseKey, key, entryKey, newvalue) {
@@ -253,8 +255,15 @@ export default {
       if (confItemValue.entry_key === 'enabled') {
         return false
       }
-      if (confValues.enabled && !confValues.enabled.value) { return true }
-      if (confItemValue.depends_on && !confValues[confItemValue.depends_on].value) { return true }
+      if (confValues.enabled && !confValues.enabled.value) {
+        return true
+      }
+      if (
+        confItemValue.depends_on &&
+        !confValues[confItemValue.depends_on].value
+      ) {
+        return true
+      }
       return false
     },
     getCleanValues (confValue) {
@@ -267,7 +276,6 @@ export default {
       }
       return newDict
     }
-
   }
 }
 </script>
