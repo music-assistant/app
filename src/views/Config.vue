@@ -60,8 +60,13 @@
               </v-list-item-avatar>
               <v-list-item-content>
                 <v-list-item-title v-if="conf_value['__name__']">{{ conf_value['__name__']['label'] }}</v-list-item-title>
-                <v-list-item-title v-else-if="configKey == 'player_settings'">{{  $server.players[conf_key].name }}</v-list-item-title>
+                <v-list-item-title v-else-if="configKey == 'player_settings'"><b>{{  $server.players[conf_key].name }}</b></v-list-item-title>
                 <v-list-item-title v-else>{{ conf_key }}</v-list-item-title>
+                <v-list-item-subtitle v-if="configKey == 'player_settings'">
+                  <span v-for="(value, name) in $server.players[conf_key].device_info" :key="name">
+                    <b><span v-if="value">{{ name + ': '  }}</span></b><span v-if="value">{{ value + '  '  }}</span>
+                  </span>
+                </v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
           </template>

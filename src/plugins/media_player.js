@@ -32,6 +32,7 @@ const mediaPlayer = new Vue({
         ).toUpperCase()
         localStorage.setItem('audio_player_id', audioPlayerId)
       }
+      const devModel = device.model + ' ' + device.platform + ' ' + device.version // eslint-disable-line no-undef,no-unused-vars
       this.playerDetails = {
         player_id: audioPlayerId,
         name: device.platform + ' ' + audioPlayerId, // eslint-disable-line no-undef,no-unused-vars
@@ -40,7 +41,11 @@ const mediaPlayer = new Vue({
         volume_level: 100,
         muted: false,
         current_uri: '',
-        elapsed_time: 0
+        elapsed_time: 0,
+        device_info: {
+          manufacturer: 'Music Assistant',
+          model: devModel
+        }
       }
       Vue.$log.info(this.playerDetails)
       this.$server.sendWsMessage('webplayer register', this.playerDetails)
