@@ -21,7 +21,7 @@ jobs:
         npm install
         npm run cordova-build-browser
         rm -R docs
-        mv src-cordova/platforms/browser/www docs
+        mv /home/runner/work/app/app/src-cordova/www docs
     - name: publish latest version to docs
       # note: will fail if there is no new version
       run: |
