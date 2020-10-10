@@ -196,6 +196,16 @@ const server = new Vue({
       }
     },
 
+    sendWsMessage (message, messageDetails) {
+      // emit a message to the server through websocket connection
+      this._ws.send(
+        JSON.stringify({
+          message: message,
+          message_details: messageDetails
+        })
+      )
+    },
+
     async _onWsConnect () {
       // Websockets connection established
 
@@ -211,12 +221,8 @@ const server = new Vue({
           this.wsConnect()
         }, 10000)
       }
-      this._ws.send(
-        JSON.stringify({
-          message: 'login',
-          message_details: this.tokenInfo.token
-        })
-      )
+      this.sendWsMessage('login', this.tokenInfo.token)
+
       // retrieve all players once through api on connect
       const players = await this.getData('players')
       for (const player of players) {

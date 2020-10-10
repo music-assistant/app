@@ -5,58 +5,106 @@ import Vue from 'vue'
 const mediaPlayer = new Vue({
   data () {
     return {
-      audioPlayerId: ''
+      playerDetails: null,
+      mediaObj: null
     }
   },
   created () {
     document.addEventListener('deviceready', this.onDeviceReady, false)
-    this.$server.$on('connected', this.getItems)
-    if (localStorage.getItem('audio_player_id')) {
-      // get player id from local storage
-      this.audioPlayerId = localStorage.getItem('audio_player_id')
-    } else {
-      // generate a new (randomized) player id
-      this.audioPlayerId = (
-        Date.now().toString(36) +
-        Math.random()
-          .toString(36)
-          .substr(2, 5)
-      ).toUpperCase()
-      localStorage.setItem('audio_player_id', this.audioPlayerId)
-    }
   },
   destroyed () {},
   methods: {
     onDeviceReady () {
-      console.log('yesss')
-      console.log(device) // eslint-disable-line no-undef,no-unused-vars
-      var myMedia = new Media( // eslint-disable-line no-undef
-        '',
-        // success callback
-        function () {
-          console.log('playAudio():Audio Success')
-        },
-        // error callback
-        function (err) {
-          console.log('playAudio():Audio Error: ' + err)
-        },
-        // status callback
-        function (err) {
-          console.log('playAudio():Audio Error: ' + err)
-        }
-      )
-      console.log(myMedia)
+      this.registerAudioPlayer()
     },
-    createAudioPlayer () {
-      const msgDetails = { // eslint-disable-line no-unused-vars
-        player_id: this.audioPlayerId,
-        name: this.audioPlayerName,
+    registerAudioPlayer () {
+      let audioPlayerId
+      if (localStorage.getItem('audio_player_id')) {
+        // get player id from local storage
+        audioPlayerId = localStorage.getItem('audio_player_id')
+      } else {
+        // generate a new (randomized) player id
+        audioPlayerId = (
+          Date.now().toString(36) +
+          Math.random()
+            .toString(36)
+            .substr(2, 5)
+        ).toUpperCase()
+        localStorage.setItem('audio_player_id', audioPlayerId)
+      }
+      this.playerDetails = {
+        player_id: audioPlayerId,
+        name: device.platform + ' ' + audioPlayerId, // eslint-disable-line no-undef,no-unused-vars
         state: 'stopped',
         powered: true,
         volume_level: 100,
         muted: false,
-        cur_uri: ''
+        current_uri: '',
+        elapsed_time: 0
       }
+      Vue.$log.info(this.playerDetails)
+      this.$server.sendWsMessage('webplayer register', this.playerDetails)
+      this.$server.$on('webplayer command', this.processPlayerCommand)
+      // Update media position every second
+      setInterval(function () {
+        // get media position
+        if (this.mediaObj) {
+          this.mediaObj.getCurrentPosition(
+            function (position) {
+              if (position > -1) {
+                this.playerDetails.elapsed_time = position
+                this.updatePlayerState()
+              }
+            }.bind(this),
+            // error callback
+            function (e) {
+              Vue.$log.info('Error getting pos=' + e)
+            }
+          )
+        } else this.updatePlayerState()
+      }.bind(this), 1000)
+    },
+    processPlayerCommand (messageDetails) {
+      if (messageDetails.player_id === this.playerDetails.player_id) {
+        const cmd = messageDetails.cmd
+        if (cmd === 'play') this.mediaObj.play()
+        if (cmd === 'pause') this.mediaObj.pause()
+        if (cmd === 'stop') this.mediaObj.stop()
+        if (cmd === 'volume_set') this.mediaObj.setVolume(messageDetails.volume_level / 100)
+        if (cmd === 'play_uri') this.playMedia(messageDetails.uri)
+      }
+    },
+    updatePlayerState () {
+      // send current player state to the server
+      this.$server.sendWsMessage('webplayer state', this.playerDetails)
+    },
+    playMedia (uri) {
+      // create the mediaplayer object and start playing
+      if (this.mediaObj) {
+        this.mediaObj.stop()
+        this.mediaObj.release()
+      }
+      this.mediaObj = new Media( // eslint-disable-line no-undef
+        uri,
+        // success callback
+        function () {
+          Vue.$log.info('playAudio():Audio Success')
+        },
+        // error callback
+        function (err) {
+          Vue.$log.info('playAudio():Audio Error: ' + err)
+        },
+        // status callback
+        function (status) {
+          if (status === 2) this.playerDetails.state = 'playing'
+          else if (status === 3) this.playerDetails.state = 'paused'
+          else this.playerDetails.state = 'stopped'
+          this.updatePlayerState()
+        }.bind(this)
+      )
+      this.playerDetails.current_uri = uri
+      this.mediaObj.setVolume(this.playerDetails.volume_level / 100)
+      this.mediaObj.play()
     }
   },
   computed: {}

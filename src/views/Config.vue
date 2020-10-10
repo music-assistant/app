@@ -37,46 +37,31 @@
           :key="conf_key"
         >
           <template v-slot:activator>
-            <v-list-item v-if="configKey == 'base'">
+            <v-list-item>
               <v-list-item-avatar
                 tile
                 style="margin-left:-15px"
               >
                 <img
+                  v-if="configKey == 'base'"
                   :src="require('../assets/' + conf_key + '.png')"
                   style="border-radius:5px;border: 1px solid rgba(0,0,0,.85);"
                 />
-              </v-list-item-avatar>
-              <v-list-item-content>
-                <v-list-item-title>{{ conf_value['__name__']['label'] }}</v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-            <v-list-item v-if="['player_providers', 'music_providers', 'metadata_providers', 'plugins'].includes(configKey)">
-              <v-list-item-avatar
-                tile
-                style="margin-left:-15px"
-              >
                 <img
+                  v-if="['player_providers', 'music_providers', 'metadata_providers', 'plugins'].includes(configKey)"
                   :src="$server.getProviderIconUrl(conf_key)"
                   style="border-radius:5px;border: 1px solid rgba(0,0,0,.85);"
                 />
-              </v-list-item-avatar>
-              <v-list-item-content>
-                <v-list-item-title>{{ conf_value['__name__']['label'] }}</v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-            <v-list-item v-if="configKey == 'player_settings'">
-              <v-list-item-avatar
-                tile
-                style="margin-left:-15px"
-              >
                 <img
+                  v-if="configKey == 'player_settings'"
                   :src="$server.getProviderIconUrl($server.players[conf_key].provider_id)"
                   style="border-radius:5px;border: 1px solid rgba(0,0,0,.85);"
                 />
               </v-list-item-avatar>
               <v-list-item-content>
-                <v-list-item-title>{{ $server.players[conf_key].name }}</v-list-item-title>
+                <v-list-item-title v-if="conf_value['__name__']">{{ conf_value['__name__']['label'] }}</v-list-item-title>
+                <v-list-item-title v-else-if="configKey == 'player_settings'">{{  $server.players[conf_key].name }}</v-list-item-title>
+                <v-list-item-title v-else>{{ conf_key }}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
           </template>
@@ -88,7 +73,7 @@
               :key="conf_item_key"
             >
               <!-- label -->
-              <v-label v-if="conf_item_value['entry_type'] == 'label' && conf_item_key != '__name__'">{{ conf_item_value['label'] }}</v-label>
+              <v-label v-if="conf_item_value['entry_type'] == 'label' && !conf_item_value['hidden']">{{ conf_item_value['label'] }}</v-label>
               <!-- boolean value: toggle switch -->
               <v-switch
                 v-if="conf_item_value['entry_type'] == 'boolean'"
@@ -214,15 +199,7 @@ export default {
   computed: {
     config_items () {
       if (!this.conf) return {}
-      if (this.configKey === 'player_settings') {
-        if (this.$server.players) {
-          var result = {}
-          for (const playerId in this.$server.players) {
-            result[playerId] = this.conf.player_settings[playerId]
-          }
-        }
-        return result
-      } else if (this.configKey !== 'player_settings') {
+      if (this.configKey) {
         return this.conf[this.configKey]
       } else return this.conf
     }
