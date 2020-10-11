@@ -20,7 +20,7 @@ jobs:
       run: |
         npm install
         npm run cordova-build-browser
-        cp -R /home/runner/work/app/app/src-cordova/www docs/
+        cp -R src-cordova/www/ docs/
     - name: publish latest version to docs
       # note: will fail if there is no new version
       run: |
