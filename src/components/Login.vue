@@ -176,10 +176,6 @@ export default {
         const rule = this.$t('login.server_empty')
         rules.push(rule)
       }
-      if (!(this.serverAddress.startsWith('http://') || this.serverAddress.startsWith('https://'))) {
-        const rule = this.$t('login.scheme_missing')
-        rules.push(rule)
-      }
       return rules
     },
     validateUsername () {

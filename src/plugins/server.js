@@ -30,8 +30,14 @@ const server = new Vue({
   },
   methods: {
 
-    async login (serverAddress, username, password) {
+    async login (serverAddress, username, password, port = 8095, ssl = false) {
       // Connect to the server by logging in
+      if (!serverAddress.startsWith('http') && ssl) {
+        serverAddress = 'https://' + serverAddress + ':' + port
+      }
+      if (!serverAddress.startsWith('http') && !ssl) {
+        serverAddress = 'http://' + serverAddress + ':' + port
+      }
       if (!serverAddress.endsWith('/')) {
         serverAddress = serverAddress + '/'
       }
@@ -249,6 +255,8 @@ const server = new Vue({
         this.$emit('connected')
         // register callbacks
         this._ws.send(JSON.stringify({ message: 'add_event_listener' }))
+        // register audio player
+        this.$mediaPlayer.registerAudioPlayer()
       } else if (msg.message === 'player changed') {
         Vue.set(
           this.players,

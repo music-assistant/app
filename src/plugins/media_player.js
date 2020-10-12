@@ -9,13 +9,10 @@ const mediaPlayer = new Vue({
       mediaObj: null
     }
   },
-  created () {
-    document.addEventListener('deviceready', this.onDeviceReady, false)
-  },
   destroyed () {},
   methods: {
-    onDeviceReady () {
-      this.registerAudioPlayer()
+    isCordova () {
+      return navigator.userAgent.match('/(iPhone|iPod|iPad|Android|BlackBerry)/')
     },
     registerAudioPlayer () {
       let audioPlayerId
@@ -32,10 +29,17 @@ const mediaPlayer = new Vue({
         ).toUpperCase()
         localStorage.setItem('audio_player_id', audioPlayerId)
       }
-      const devModel = device.model + ' ' + device.platform + ' ' + device.version // eslint-disable-line no-undef,no-unused-vars
+
+      let devModel = navigator.userAgent.split(')').pop()
+      let devName = 'Browser ' + audioPlayerId
+      if (this.isCordova()) {
+        devModel = device.model + ' ' + device.platform + ' ' + device.version // eslint-disable-line no-undef,no-unused-vars
+        devName = device.platform + ' ' + audioPlayerId // eslint-disable-line no-undef,no-unused-vars
+      }
+
       this.playerDetails = {
         player_id: audioPlayerId,
-        name: device.platform + ' ' + audioPlayerId, // eslint-disable-line no-undef,no-unused-vars
+        name: devName,
         state: 'stopped',
         powered: true,
         volume_level: 100,
@@ -52,21 +56,7 @@ const mediaPlayer = new Vue({
       this.$server.$on('webplayer command', this.processPlayerCommand)
       // Update media position every second
       setInterval(function () {
-        // get media position
-        if (this.mediaObj) {
-          this.mediaObj.getCurrentPosition(
-            function (position) {
-              if (position > -1) {
-                this.playerDetails.elapsed_time = position
-                this.updatePlayerState()
-              }
-            }.bind(this),
-            // error callback
-            function (e) {
-              Vue.$log.info('Error getting pos=' + e)
-            }
-          )
-        } else this.updatePlayerState()
+        this.updatePlayerState()
       }.bind(this), 1000)
     },
     processPlayerCommand (messageDetails) {
@@ -74,16 +64,47 @@ const mediaPlayer = new Vue({
         const cmd = messageDetails.cmd
         if (cmd === 'play') this.mediaObj.play()
         if (cmd === 'pause') this.mediaObj.pause()
-        if (cmd === 'stop') this.mediaObj.stop()
-        if (cmd === 'volume_set') this.mediaObj.setVolume(messageDetails.volume_level / 100)
-        if (cmd === 'play_uri') this.playMedia(messageDetails.uri)
+        if (cmd === 'stop') {
+          this.mediaObj.pause()
+          this.mediaObj = new Audio('invalidate')
+        }
+        if (cmd === 'volume_set') this.mediaObj.volume = messageDetails.volume_level / 100
+        if (cmd === 'play_uri') {
+          if (this.isCordova()) this.playMediaCordova(messageDetails.uri)
+          else this.playMediaBrowser(messageDetails.uri)
+        }
       }
     },
     updatePlayerState () {
       // send current player state to the server
       this.$server.sendWsMessage('webplayer state', this.playerDetails)
     },
-    playMedia (uri) {
+    playMediaBrowser (uri) {
+      if (this.mediaObj) {
+        this.mediaObj.load()
+      }
+      this.mediaObj = new Audio(uri)
+      this.mediaObj.autoplay = true
+      this.mediaObj.addEventListener('play', () => {
+        this.playerDetails.state = 'playing'
+      })
+      this.mediaObj.addEventListener('pause', () => {
+        this.playerDetails.state = 'paused'
+      })
+      this.mediaObj.addEventListener('ended', () => {
+        this.playerDetails.state = 'stopped'
+      })
+      this.mediaObj.addEventListener('timeupdate', () => {
+        this.playerDetails.elapsed_time = this.mediaObj.currentTime
+      })
+      this.mediaObj.addEventListener('volumechange', () => {
+        this.playerDetails.volume_level = this.mediaObj.volume * 100
+        this.playerDetails.muted = this.mediaObj.muted
+      })
+      this.playerDetails.current_uri = uri
+      this.mediaObj.volume = this.playerDetails.volume_level / 100
+    },
+    playMediaCordova (uri) {
       // create the mediaplayer object and start playing
       if (this.mediaObj) {
         this.mediaObj.stop()
@@ -110,6 +131,18 @@ const mediaPlayer = new Vue({
       this.playerDetails.current_uri = uri
       this.mediaObj.setVolume(this.playerDetails.volume_level / 100)
       this.mediaObj.play()
+      setInterval(function () {
+        // get media position
+        if (this.mediaObj) {
+          this.mediaObj.getCurrentPosition(
+            function (position) {
+              if (position > -1) {
+                this.playerDetails.elapsed_time = position
+              }
+            }.bind(this)
+          )
+        }
+      }.bind(this), 500)
     }
   },
   computed: {}
