@@ -19,8 +19,7 @@ jobs:
     - name: npm install and build
       run: |
         npm install
-        npm run cordova-build-browser
-        cp -R src-cordova/www/ docs/
+        npm run build
     - name: publish latest version to docs
       # note: will fail if there is no new version
       run: |
