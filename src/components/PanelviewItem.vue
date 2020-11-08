@@ -97,14 +97,14 @@ export default Vue.extend({
   computed: {
     isHiRes () {
       for (var prov of this.item.provider_ids) {
-        if (prov.quality.includes('hi_res')) {
+        if (prov.quality !== 99 && prov.quality > 6) {
           if (prov.details) {
             return prov.details
-          } else if (prov.quality === 'flac_lossless_hi_res_1') {
+          } else if (prov.quality === 7) {
             return '44.1/48khz 24 bits'
-          } else if (prov.quality === 'flac_lossless_hi_res_2') {
+          } else if (prov.quality === 8) {
             return '88.2/96khz 24 bits'
-          } else if (prov.quality === 'flac_lossless_hi_res_3') {
+          } else if (prov.quality === 9) {
             return '176/192khz 24 bits'
           } else {
             return '+192kHz 24 bits'

@@ -176,7 +176,7 @@ export default {
   methods: {
     async getItems () {
       // retrieve the full list of items
-      await this.$server.getAllItems(this.endpoint, this.items)
+      this.items = await this.$server.getData(this.endpoint)
     },
     toggleViewMode () {
       if (this.viewMode === 'panel') this.viewMode = 'list'

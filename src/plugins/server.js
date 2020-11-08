@@ -2,10 +2,9 @@
 
 import Vue from 'vue'
 import axios from 'axios'
-import oboe from 'oboe'
 
 const axiosConfig = {
-  timeout: 5 * 1000
+  timeout: 15 * 1000
   // withCredentials: true, // Check cross-site Access-Control
 }
 const _axios = axios.create(axiosConfig)
@@ -148,28 +147,6 @@ const server = new Vue({
       return result.data
     },
 
-    async getAllItems (endpoint, list, params = null) {
-      // retrieve all items and fill list
-      let url = this._serverAddress + 'api/' + endpoint
-      if (params) {
-        var urlParams = new URLSearchParams(params)
-        url += '?' + urlParams.toString()
-      }
-      let index = 0
-      const headers = { Authorization: 'Bearer ' + this.tokenInfo.token }
-      oboe({ url: url, headers: headers })
-        .node('items.*', function (item) {
-          Vue.set(list, index, item)
-          index += 1
-        })
-        .done(function (fullList) {
-          // truncate list if needed
-          if (list.length > fullList.items.length) {
-            list.splice(fullList.items.length)
-          }
-        })
-    },
-
     playerCommand (cmd, cmd_opt = '', playerId = this.activePlayerId) {
       const endpoint = 'players/' + playerId + '/cmd/' + cmd
       this.postData(endpoint, cmd_opt)
@@ -254,7 +231,7 @@ const server = new Vue({
         this.connected = true
         this.$emit('connected')
         // register callbacks
-        this._ws.send(JSON.stringify({ message: 'add_event_listener' }))
+        this.sendWsMessage('add_event_listener', null)
         // register audio player
         this.$mediaPlayer.registerAudioPlayer()
       } else if (msg.message === 'player changed') {

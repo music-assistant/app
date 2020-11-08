@@ -18,6 +18,7 @@
         <v-list-item-title>
           {{ item.name }}
           <span v-if="!!item.version">({{ item.version }})</span>
+          <b v-if="!itemIsAvailable(item)"> UNAVAILABLE</b>
         </v-list-item-title>
 
         <v-list-item-subtitle v-if="item.artists">
@@ -173,14 +174,14 @@ export default Vue.extend({
   computed: {
     isHiRes () {
       for (var prov of this.item.provider_ids) {
-        if (prov.quality.includes('hi_res')) {
+        if (prov.quality !== 99 && prov.quality > 6) {
           if (prov.details) {
             return prov.details
-          } else if (prov.quality === 'flac_lossless_hi_res_1') {
+          } else if (prov.quality === 7) {
             return '44.1/48khz 24 bits'
-          } else if (prov.quality === 'flac_lossless_hi_res_2') {
+          } else if (prov.quality === 8) {
             return '88.2/96khz 24 bits'
-          } else if (prov.quality === 'flac_lossless_hi_res_3') {
+          } else if (prov.quality === 9) {
             return '176/192khz 24 bits'
           } else {
             return '+192kHz 24 bits'
@@ -222,6 +223,12 @@ export default Vue.extend({
       this.cancelled = true
       await this.$server.toggleLibrary(mediaItem)
       this.cancelled = false
+    },
+    itemIsAvailable (item) {
+      for (const x of item.provider_ids) {
+        if (x.available) return true
+      }
+      return false
     }
   }
 })
