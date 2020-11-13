@@ -73,8 +73,8 @@ const server = new Vue({
     getImageUrl (mediaItem, imageType = 'image', size = 0) {
       // format the image url
       if (!mediaItem || !mediaItem.media_type) return ''
-      if (mediaItem.provider === 'database' && imageType === 'image') {
-        return `${this._serverAddress}api/${mediaItem.media_type}/${mediaItem.item_id}/thumb?provider=${mediaItem.provider}&size=${size}`
+      if (size > 0 && imageType === 'image') {
+        return `${this._serverAddress}api/images/thumb?provider=${mediaItem.provider}&item_id=${mediaItem.item_id}&media_type=${mediaItem.media_type}&size=${size}`
       } else if (mediaItem.metadata && mediaItem.metadata[imageType]) {
         return mediaItem.metadata[imageType]
       } else if (
@@ -104,12 +104,12 @@ const server = new Vue({
         return mediaItem.artists[0].metadata[imageType]
       } else if (imageType === 'fanart') {
         // fallback to normal image instead of fanart
-        return this.getImageUrl(mediaItem, 'image', size)
+        return this.getImageUrl(mediaItem, 'image')
       } else return ''
     },
 
     getProviderIconUrl (providerId) {
-      return `${this._serverAddress}api/providers/${providerId}/icon`
+      return `${this._serverAddress}api/images/provider-icon/${providerId}`
     },
 
     async getData (endpoint, params = {}) {
