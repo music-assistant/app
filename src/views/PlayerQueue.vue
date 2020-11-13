@@ -233,7 +233,7 @@ export default {
       const queueId = this.$server.players[this.$server.activePlayerId].active_queue
       if (data.player_id === queueId) {
         const endpoint = 'players/' + data.player_id + '/queue/items'
-        await this.$server.getAllItems(endpoint, this.items)
+        this.items = await this.$server.getData(endpoint, this.items)
       }
     },
     sendQueueCommand (cmd, cmd_args = null) {
