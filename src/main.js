@@ -8,11 +8,11 @@ import 'material-design-icons-iconfont/dist/material-design-icons.css'
 import VueVirtualScroller from 'vue-virtual-scroller'
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 import vuetify from './plugins/vuetify'
-import store from './plugins/store'
 import server from './plugins/server'
 import mediaPlayer from './plugins/media_player'
 import '@babel/polyfill'
 import VueLogger from 'vuejs-logger'
+import store from './store'
 
 const isProduction = process.env.NODE_ENV === 'production'
 const loggerOptions = {
@@ -28,9 +28,6 @@ const loggerOptions = {
 Vue.config.productionTip = false
 Vue.use(VueLogger, loggerOptions)
 Vue.use(VueVirtualScroller)
-Vue.use(store)
-Vue.use(server)
-Vue.use(mediaPlayer)
 
 // eslint-disable-next-line no-extend-native
 String.prototype.formatDuration = function () {
@@ -48,5 +45,10 @@ new Vue({
   router,
   i18n,
   vuetify,
+  store,
+  created () {
+    Vue.use(server, store) // make sure that the store is passed in to server
+    Vue.use(mediaPlayer)
+  },
   render: h => h(App)
 }).$mount('#app')

@@ -3,7 +3,7 @@
   <img
     v-for="prov of uniqueProviders" :key="prov.provider"
     :height="height"
-    :src="$server.getProviderIconUrl(prov.provider)"
+    :src="getProviderIcon(prov.provider)"
     style="margin-right:6px;margin-top:6px;"
   />
   </div>
@@ -11,6 +11,7 @@
 
 <script>
 import Vue from 'vue'
+import { mapGetters } from 'vuex'
 
 export default Vue.extend({
   props: {
@@ -23,6 +24,7 @@ export default Vue.extend({
     }
   },
   computed: {
+    ...mapGetters(['getProviderIcon']),
     uniqueProviders: function () {
       var output = []
       var keys = []

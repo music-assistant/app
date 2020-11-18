@@ -8,7 +8,7 @@
       <v-list tile>
         <v-list-item
           tile
-          v-for="(conf_value, conf_key) in conf"
+          v-for="(conf_value, conf_key) in configMenu"
           :key="conf_key"
           @click="$router.push('/config/' + conf_key)"
         >
@@ -49,21 +49,21 @@
                 />
                 <img
                   v-if="['player_providers', 'music_providers', 'metadata_providers', 'plugins'].includes(configKey)"
-                  :src="$server.getProviderIconUrl(conf_key)"
+                  :src="getProviderIcon(conf_key)"
                   style="border-radius:5px;border: 1px solid rgba(0,0,0,.85);"
                 />
                 <img
                   v-if="configKey == 'player_settings'"
-                  :src="$server.getProviderIconUrl($server.players[conf_key].provider_id)"
+                  :src="getProviderIcon(getPlayer(conf_key).provider_id)"
                   style="border-radius:5px;border: 1px solid rgba(0,0,0,.85);"
                 />
               </v-list-item-avatar>
               <v-list-item-content>
                 <v-list-item-title v-if="conf_value['__name__']">{{ conf_value['__name__']['label'] }}</v-list-item-title>
-                <v-list-item-title v-else-if="configKey == 'player_settings'"><b>{{  $server.players[conf_key].name }}</b></v-list-item-title>
+                <v-list-item-title v-else-if="configKey == 'player_settings'"><b>{{  getPlayer(conf_key).name }}</b></v-list-item-title>
                 <v-list-item-title v-else>{{ conf_key }}</v-list-item-title>
                 <v-list-item-subtitle v-if="configKey == 'player_settings'">
-                  <span v-for="(value, name) in $server.players[conf_key].device_info" :key="name">
+                  <span v-for="(value, name) in getPlayer(conf_key).device_info" :key="name">
                     <b><span v-if="value">{{ name + ': '  }}</span></b><span v-if="value">{{ value + '  '  }}</span>
                   </span>
                 </v-list-item-subtitle>
@@ -165,72 +165,62 @@
 </template>
 
 <script>
-import Vue from 'vue'
+import { mapGetters, mapState } from 'vuex'
 export default {
   components: {},
   props: ['configKey'],
   data () {
     return {
-      conf: {
+      configMenu: {
         base: {
-          label: this.$t('conf.base'),
+          label: this.$t('config.base'),
           icon: 'mdi-tune'
         },
         music_providers: {
-          label: this.$t('conf.music_providers'),
+          label: this.$t('config.music_providers'),
           icon: 'mdi-folder-music'
         },
         player_providers: {
-          label: this.$t('conf.player_providers'),
+          label: this.$t('config.player_providers'),
           icon: 'mdi-disc-player'
         },
         metadata_providers: {
-          label: this.$t('conf.metadata_providers'),
+          label: this.$t('config.metadata_providers'),
           icon: 'mdi-image-search'
         },
         plugins: {
-          label: this.$t('conf.plugins'),
+          label: this.$t('config.plugins'),
           icon: 'mdi-toy-brick-marker'
         },
         player_settings: {
-          label: this.$t('conf.player_settings'),
+          label: this.$t('config.player_settings'),
           icon: 'mdi-headphones-settings'
         }
-      },
-      players: {},
-      active: 0
+      }
     }
   },
   computed: {
+    ...mapState([
+      'config'
+    ]),
+    ...mapGetters(['getProviderIcon', 'getPlayer']),
     config_items () {
-      if (!this.conf) return {}
+      if (!this.config) return {}
       if (this.configKey) {
-        return this.conf[this.configKey]
-      } else return this.conf
+        return this.config[this.configKey]
+      } else return this.config
     }
   },
   async created () {
-    this.$store.windowtitle = this.$t('settings')
+    this.$store.state.windowtitle = this.$t('settings')
     if (this.configKey) {
-      this.$store.windowtitle += ' | ' + this.$t('conf.' + this.configKey)
+      this.$store.state.windowtitle += ' | ' + this.$t('config.' + this.configKey)
     }
-    this.getConfig()
-    this.$server.$on('connected', this.getConfig)
-    this.$server.$on('config changed', this.getConfig)
-    this.$server.$on('player changed', this.getConfig)
   },
   methods: {
-    async getConfig () {
-      if (!this.configKey || !this.$server.connected) return
-      const language = navigator.language.split('-')[0]
-      const conf = await this.$server.getData('config/' + this.configKey, {
-        lang: language
-      })
-      Vue.set(this.conf, this.configKey, conf)
-    },
     async saveConfig (baseKey, key, entryKey, newvalue) {
       const endpoint = 'config/' + baseKey + '/' + key + '/' + entryKey
-      await this.$server.putData(endpoint, newvalue)
+      this.$server.sendWsCommand(endpoint, { new_value: newvalue })
     },
     getDisabledState (confValues, confItemValue) {
       // disable UI elements if main item is disabled or depends_on is set

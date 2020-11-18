@@ -35,10 +35,10 @@
               :key="item.db_id"
               v-bind:totalitems="tracks.length"
               v-bind:index="index"
-              :hideavatar="$store.isMobile"
+              :hideavatar="$store.state.isMobile"
               :hidetracknum="true"
-              :hideproviders="$store.isMobile"
-              :hideduration="$store.isMobile"
+              :hideproviders="$store.state.isMobile"
+              :hideduration="$store.state.isMobile"
               :showlibrary="true"
             >
             </listviewItem>
@@ -59,7 +59,7 @@
               :key="item.db_id"
               v-bind:totalitems="artists.length"
               v-bind:index="index"
-              :hideproviders="$store.isMobile"
+              :hideproviders="$store.state.isMobile"
             >
             </listviewItem>
           </v-list>
@@ -79,7 +79,7 @@
               :key="item.db_id"
               v-bind:totalitems="albums.length"
               v-bind:index="index"
-              :hideproviders="$store.isMobile"
+              :hideproviders="$store.state.isMobile"
             >
             </listviewItem>
           </v-list>
@@ -137,22 +137,24 @@ export default {
     }
   },
   created () {
-    this.$server.$on('connected', this.Search)
-    this.$store.windowtitle = this.$t('search')
+    this.$store.state.windowTitle = this.$t('search')
     this.Search()
   },
   methods: {
     async Search () {
-      if (this.searchQuery && this.$server.connected) {
-        this.$store.loading = true
-        const params = { query: this.searchQuery, online: true, limit: 10 }
-        const result = await this.$server.getData('search', params)
-        this.artists = result.artists
-        this.albums = result.albums
-        this.tracks = result.tracks
-        this.playlists = result.playlists
-        this.$store.loading = false
+      if (this.searchQuery) {
         this.searchInput = this.searchQuery
+        const params = {
+          search_query: this.searchQuery,
+          limit: 10,
+          media_types: ['artist', 'album', 'track', 'playlist']
+        }
+        this.$server.sendWsCommand('search', params, function (result) {
+          this.artists = result.artists
+          this.albums = result.albums
+          this.tracks = result.tracks
+          this.playlists = result.playlists
+        }.bind(this))
       } else {
         this.artists = []
         this.albums = []

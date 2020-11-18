@@ -1,12 +1,13 @@
 <template>
   <section>
-    <ItemsListing :mediatype="mediatype" :provider="provider" :endpoint="'library/' + mediatype" />
+    <ItemsListing :mediatype="mediatype" :items="items" />
   </section>
 </template>
 
 <script>
 // @ is an alias to /src
 import ItemsListing from '@/components/ItemsListing.vue'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'browse',
@@ -21,9 +22,19 @@ export default {
     return { }
   },
   created () {
-    this.$store.windowtitle = this.$t(this.mediatype)
+    this.$store.state.windowTitle = this.$t(this.mediatype)
   },
-  computed: { },
+  computed: {
+    ...mapGetters(['getLibraryTracks', 'getLibraryAlbums', 'getLibraryArtists', 'getLibraryPlaylists', 'getLibraryRadios']),
+    items () {
+      if (this.mediatype === 'tracks') { return this.getLibraryTracks }
+      if (this.mediatype === 'albums') { return this.getLibraryAlbums }
+      if (this.mediatype === 'artists') { return this.getLibraryArtists }
+      if (this.mediatype === 'playlists') { return this.getLibraryPlaylists }
+      if (this.mediatype === 'radios') { return this.getLibraryRadios }
+      return []
+    }
+  },
   methods: { }
 }
 </script>

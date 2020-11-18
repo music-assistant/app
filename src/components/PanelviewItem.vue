@@ -11,12 +11,7 @@
     @contextmenu.prevent
     v-longpress="menuClick"
   >
-    <v-img
-      :src="$server.getImageUrl(item, 'image', thumbWidth)"
-      width="100%"
-      aspect-ratio="1"
-    >
-    </v-img>
+    <MediaItemThumb :item="item" :size="thumbWidth"/>
     <div v-if="isHiRes" style="position:absolute;margin-left:5px;margin-top:-20px;height:30px;background-color: white;border-radius: 3px;">
     <v-tooltip bottom>
           <template v-slot:activator="{ on }">
@@ -27,18 +22,18 @@
     </div>
     <v-divider />
     <v-card-title
-      :class="$store.isMobile ? 'body-2' : 'title'"
+      :class="$store.state.isMobile ? 'body-2' : 'title'"
       v-text="item.name"
       style="padding: 8px;color: primary;margin-top:8px"
     />
     <v-card-subtitle
-      :class="$store.isMobile ? 'caption' : 'body-1'"
+      :class="$store.state.isMobile ? 'caption' : 'body-1'"
       v-text="item.artist.name"
       v-if="item.artist"
       style="padding: 8px"
     />
     <v-card-subtitle
-      :class="$store.isMobile ? 'caption' : 'body-1'"
+      :class="$store.state.isMobile ? 'caption' : 'body-1'"
       v-text="item.artists[0].name"
       v-if="item.artists"
       style="padding: 8px"
@@ -48,6 +43,7 @@
 
 <script>
 import Vue from 'vue'
+import MediaItemThumb from '@/components/MediaItemThumb.vue'
 
 const PRESS_TIMEOUT = 600
 
@@ -79,6 +75,7 @@ Vue.directive('longpress', {
 
 export default Vue.extend({
   components: {
+    MediaItemThumb
   },
   props: {
     item: Object,

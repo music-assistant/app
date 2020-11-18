@@ -41,6 +41,7 @@
 <script>
 import Vue from 'vue'
 import ListviewItem from '@/components/ListviewItem.vue'
+import { mapGetters } from 'vuex'
 
 export default Vue.extend({
   components:
@@ -69,6 +70,7 @@ export default Vue.extend({
     this.$server.$on('showPlayMenu', this.showPlayMenu)
   },
   computed: {
+    ...mapGetters(['getLibraryPlaylists'])
   },
   methods: {
     showContextMenu (mediaItem) {
@@ -76,7 +78,7 @@ export default Vue.extend({
       this.playlists = []
       if (!mediaItem) return
       this.curItem = mediaItem
-      const curBrowseContext = this.$store.topBarContextItem
+      const curBrowseContext = this.$store.state.topBarContextItem
       const menuItems = []
       // show info
       if (mediaItem !== curBrowseContext) {
@@ -87,7 +89,7 @@ export default Vue.extend({
         })
       }
       // add to library
-      if (mediaItem.in_library.length === 0) {
+      if (!mediaItem.in_library) {
         menuItems.push({
           label: 'add_library',
           action: 'toggle_library',
@@ -95,7 +97,7 @@ export default Vue.extend({
         })
       }
       // remove from library
-      if (mediaItem.in_library.length > 0) {
+      if (mediaItem.in_library) {
         menuItems.push({
           label: 'remove_library',
           action: 'toggle_library',
@@ -159,9 +161,8 @@ export default Vue.extend({
       for (const item of this.curItem.provider_ids) {
         trackProviders.push(item.provider)
       }
-      const playlists = await this.$server.getData('library/playlists')
       const items = []
-      for (var playlist of playlists.items) {
+      for (var playlist of this.getLibraryPlaylists) {
         if (
           playlist.is_editable &&
           (!this.curPlaylist || playlist.item_id !== this.curPlaylist.item_id)
@@ -205,26 +206,23 @@ export default Vue.extend({
         this.visible = false
       } else {
         // assume play command
-        this.$server.playItem(this.curItem, cmd)
+        this.$server.playMedia(this.curItem, cmd)
         this.visible = false
       }
     },
     addToPlaylist (playlistObj) {
       /// add track to playlist
-      const endpoint = 'playlists/' + playlistObj.item_id + '/tracks'
-      this.$server.putData(endpoint, this.curItem)
-        .then(result => {
-          this.visible = false
-        })
+      const endpoint = 'library/playlists/' + playlistObj.item_id + '/tracks/add'
+      this.$server.sendWsCommand(endpoint, { tracks: [this.curItem] }, function (res) {
+        this.visible = false
+      }.bind(this))
     },
     removeFromPlaylist (track, playlistId) {
       /// remove track from playlist
-      const endpoint = 'playlists/' + playlistId + '/tracks'
-      this.$server.deleteData(endpoint, track)
-        .then(result => {
-          // reload listing
-          this.$server.$emit('refresh_listing')
-        })
+      const endpoint = 'library/playlists/' + playlistId + '/tracks/remove'
+      this.$server.sendWsCommand(endpoint, { tracks: [this.curItem] }, function (res) {
+        this.visible = false
+      }.bind(this))
     }
   }
 })

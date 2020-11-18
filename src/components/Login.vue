@@ -1,7 +1,7 @@
 <template>
 
   <v-dialog
-    :value="$store.showLoginForm"
+    :value="$store.state.showLoginForm"
     persistent
     max-width="600px"
   >
@@ -19,25 +19,15 @@
           v-model="valid"
           lazy-validation
         >
-          <v-text-field
-            v-model="serverAddress"
-            :label="this.$t('login.server')"
-            prepend-icon="mdi-server"
-            name="server"
-            type="text"
-            :rules="validateServerAddress"
-            style="margin-top:20px"
-            @change="connectError = ''"
-          ></v-text-field>
+        <br/>
           <v-text-field
             v-model="username"
             :label="this.$t('login.username')"
             name="username"
             prepend-icon="mdi-account"
             type="text"
-            placeholder="admin"
             :rules="validateUsername"
-            @change="connectError = ''"
+            @change="connectError = false"
           ></v-text-field>
           <v-text-field
             v-model="password"
@@ -46,10 +36,10 @@
             prepend-icon="mdi-lock"
             type="password"
             :rules="validatePassword"
-            @change="connectError = ''"
+            @change="connectError = false"
           ></v-text-field>
           <v-checkbox
-            v-model="allowCredentialsSave"
+            v-model="permanentSession"
             :label="this.$t('login.save_creds')"
           ></v-checkbox>
         </v-form>
@@ -58,7 +48,7 @@
         v-if="connectError"
         style="color: red"
       >
-        {{ connectError }}
+        {{ $t('login.login_failed') }}
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
@@ -81,7 +71,6 @@
 </template>
 
 <script>
-import axios from 'axios'
 export default {
   props: {
     source: String
@@ -89,30 +78,18 @@ export default {
   data () {
     return {
       servers: [],
-      serverAddress: '',
       username: '',
       password: '',
       valid: true,
-      allowCredentialsSave: false,
-      connectError: ''
+      permanentSession: false,
+      connectError: false
     }
   },
   methods: {
     async submitLogin () {
       // connect to server
-      if (await this.$server.login(this.serverAddress, this.username, this.password)) {
-        this.$store.showLoginForm = false
-        // store new values in browser storage at successfull login
-        localStorage.setItem('serverAddress', this.serverAddress)
-        localStorage.setItem('username', this.username)
-        if (this.allowCredentialsSave) {
-          // storing password in localStorage is considered insecure so it's optional
-          localStorage.setItem('password', this.password)
-        }
-      } else {
-        this.$store.showLoginForm = true
-        this.connectError = this.$t('login.login_failed')
-      }
+      // TODO: support for external connect
+      this.$server.localLogin(this.username, this.password, this.permanentSession, this.loginSuccessCallback)
     },
     async validate () {
       this.$refs.form.validate()
@@ -124,60 +101,13 @@ export default {
     resetValidation () {
       this.$refs.form.resetValidation()
     },
-    async getServerInfo (serverAddress) {
-      if (!serverAddress) {
-        return
-      }
-      if (!serverAddress.endsWith('/')) {
-        serverAddress = serverAddress + '/'
-      }
-      const url = serverAddress + 'info'
-      try {
-        const result = await axios.get(url, { timeout: 500 })
-        return result.data
-      } catch {
-        return false
-      }
-    },
-    async getDefaultServer () {
-      // try to get default server
-      const loc = window.location
-      // auto select local server if it exists
-      var localServerAddress = loc.origin + loc.pathname
-      localServerAddress = localServerAddress.replace(':8080', ':8095')
-      const serverInfo = await this.getServerInfo(localServerAddress)
-      if (serverInfo !== false) {
-        return localServerAddress
-      }
-      return ''
+    loginSuccessCallback (res) {
+      this.connectError = !res
     }
   },
   async created () {
-    // work out if we have cached credentials and connect
-    this.serverAddress = localStorage.getItem('serverAddress')
-    this.username = localStorage.getItem('username')
-    this.password = localStorage.getItem('password')
-    if (!this.serverAddress) { this.serverAddress = await this.getDefaultServer() }
-    if (!this.username) { this.username = 'admin' }
-    if (!this.password) { this.password = '' }
-    // TODO: show warning in UI if default (blank) password in use?
-    if (await this.$server.login(this.serverAddress, this.username, this.password) === true) {
-      // server connected !
-      this.$store.showLoginForm = false
-    } else {
-      // connect failed or no credentials stored, show dialog
-      this.$store.showLoginForm = true
-    }
   },
   computed: {
-    validateServerAddress () {
-      const rules = []
-      if (!this.serverAddress) {
-        const rule = this.$t('login.server_empty')
-        rules.push(rule)
-      }
-      return rules
-    },
     validateUsername () {
       const rules = []
 
