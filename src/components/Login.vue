@@ -94,10 +94,13 @@ export default {
       // Login to local server with username and password
       // For now, we only support connecting to the server hosted on same location as the web app
       // this will be changed to support secure remote connections through a broker service
-      let serverAddress = window.location.origin
+      let serverAddress = window.location
       serverAddress = serverAddress.replace('8080', '8095') // dev
+      if (!serverAddress.endsWith('/')) {
+        serverAddress = serverAddress + '/'
+      }
       // perform login
-      const endpoint = serverAddress + '/login'
+      const endpoint = serverAddress + 'login'
       const formData = new FormData()
       formData.append('username', this.username)
       formData.append('password', this.password)
@@ -108,7 +111,7 @@ export default {
         .then(response => {
           // login success
           serverAddress = serverAddress.replace('http', 'ws')
-          serverAddress += '/ws'
+          serverAddress += 'ws'
           this.$server.serverAddress = serverAddress
           this.$server.tokenInfo = response.data
           this.$server.wsConnect()
