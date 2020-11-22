@@ -51,41 +51,6 @@ const server = new Vue({
       'dispatchHideLoginForm',
       'switchSelectedPlayer'
     ]),
-    // For now, we only support connecting to the server hosted on same location as the web app
-    // this will be changed to support secure remote connections through a broker service
-    async localLogin (username, password, persistent = false, loginSuccessCallback = null) {
-      // Login to local server with username and password
-      let serverAddress = window.location.origin + '/ws'
-      serverAddress = serverAddress.replace('https', 'wss')
-      serverAddress = serverAddress.replace('http', 'ws')
-      serverAddress = serverAddress.replace('8080', '8095') // dev
-      // perform login
-      const ws = new WebSocket(serverAddress)
-      ws.onopen = () => {
-        // connect to server and request token
-        const loginData = { username: username, password: password }
-        ws.send(JSON.stringify({ command: 'get_token', data: loginData }))
-      }
-      ws.onmessage = (e) => {
-        var msg = JSON.parse(e.data)
-        if (msg.result && !msg.error && msg.data) {
-          // login successfull
-          if (loginSuccessCallback) loginSuccessCallback(true)
-          this.tokenInfo = msg.data
-          // also store in localStorage
-          this.serverAddress = serverAddress
-          localStorage.setItem('tokenInfo', JSON.stringify(this.tokenInfo))
-          localStorage.setItem('serverAddress', this.serverAddress)
-          this.wsConnect()
-        }
-        ws.close()
-        if (loginSuccessCallback) loginSuccessCallback(false)
-      }
-      ws.onerror = () => {
-        if (loginSuccessCallback) loginSuccessCallback(false)
-        ws.close()
-      }
-    },
 
     async toggleLibrary (item) {
       /// triggered when user clicks the library (heart) button

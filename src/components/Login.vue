@@ -71,6 +71,9 @@
 </template>
 
 <script>
+import axios from 'axios'
+import Vue from 'vue'
+
 export default {
   props: {
     source: String
@@ -86,10 +89,36 @@ export default {
     }
   },
   methods: {
+
     async submitLogin () {
-      // connect to server
-      // TODO: support for external connect
-      this.$server.localLogin(this.username, this.password, this.permanentSession, this.loginSuccessCallback)
+      // Login to local server with username and password
+      // For now, we only support connecting to the server hosted on same location as the web app
+      // this will be changed to support secure remote connections through a broker service
+      let serverAddress = window.location.origin
+      serverAddress = serverAddress.replace('8080', '8095') // dev
+      // perform login
+      const endpoint = serverAddress + '/login'
+      const formData = new FormData()
+      formData.append('username', this.username)
+      formData.append('password', this.password)
+      if (this.permanentSession) {
+        formData.append('app_id', 'browser login')
+      }
+      axios.post(endpoint, formData)
+        .then(response => {
+          // login success
+          serverAddress = serverAddress.replace('http', 'ws')
+          serverAddress += '/ws'
+          this.$server.serverAddress = serverAddress
+          this.$server.tokenInfo = response.data
+          this.$server.wsConnect()
+          localStorage.setItem('serverAddress', serverAddress)
+          localStorage.setItem('tokenInfo', JSON.stringify(response.data))
+        })
+        .catch(e => {
+          Vue.$log.error(e)
+          this.connectError = true
+        })
     },
     async validate () {
       this.$refs.form.validate()
