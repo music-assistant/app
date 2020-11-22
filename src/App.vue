@@ -8,10 +8,10 @@
     <PlayerOSD :showPlayerSelect="showPlayerSelect" />
     <ContextMenu/>
     <PlayerSelect/>
-    <v-overlay :value="$store.loading">
+    <v-overlay :value="!$server.connected">
       <v-progress-circular indeterminate size="64"></v-progress-circular>
     </v-overlay>
-    <Login />
+    <Login v-if="$store.state.showLoginForm"/>
   </v-app>
 </template>
 
@@ -43,6 +43,19 @@ export default Vue.extend({
   },
   data: () => ({
     showPlayerSelect: false
-  })
+  }),
+  created () {
+    this.handleWindowOptions()
+    window.addEventListener('resize', this.handleWindowOptions)
+  },
+  destroyed () {
+    window.removeEventListener('resize', this.handleWindowOptions)
+  },
+  methods: {
+    handleWindowOptions () {
+      this.$store.state.isMobile = (document.body.clientWidth < 700)
+      this.$store.state.isInStandaloneMode = (window.navigator.standalone === true) || (window.matchMedia('(display-mode: standalone)').matches)
+    }
+  }
 })
 </script>

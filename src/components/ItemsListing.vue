@@ -89,11 +89,11 @@
           >
             <ListviewItem
               v-bind:item="item"
-              :hideavatar="item.media_type == 'track' ? $store.isMobile : false"
+              :hideavatar="item.media_type == 'track' ? $store.state.isMobile : false"
               :hidetracknum="true"
-              :hideproviders="item.media_type in ['artist', 'album', 'track'] ? $store.isMobile : false"
+              :hideproviders="item.media_type in ['artist', 'album', 'track'] ? $store.state.isMobile : false"
               :hidelibrary="true"
-              :hidemenu="item.media_type == 'track' ? $store.isMobile : false"
+              :hidemenu="item.media_type == 'track' ? $store.state.isMobile : false"
               :hideduration="item.media_type == 'radio'"
             ></ListviewItem>
           </RecycleScroller>
@@ -121,11 +121,10 @@ export default {
   },
   props: [
     'mediatype',
-    'endpoint'
+    'items'
   ],
   data () {
     return {
-      items: [],
       viewMode: 'list',
       search: '',
       sortDesc: false,
@@ -134,19 +133,19 @@ export default {
     }
   },
   created () {
-    if (this.endpoint.includes('playlists/')) {
+    if (this.mediatype === 'playlisttracks') {
       // playlist tracks
       this.sortKeys.push({ text: this.$t('sort_position'), value: 'position' })
       this.sortKeys.push({ text: this.$t('sort_artist'), value: 'artists[0].name' })
       this.sortKeys.push({ text: this.$t('sort_album'), value: 'album.name' })
       this.sortBy = 'position'
       this.viewMode = 'list'
-    } else if (this.endpoint.includes('tracks')) {
+    } else if (this.mediatype === 'tracks') {
       // tracks listing
       this.sortKeys.push({ text: this.$t('sort_artist'), value: 'artists[0].name' })
       this.sortKeys.push({ text: this.$t('sort_album'), value: 'album.name' })
       this.viewMode = 'list'
-    } else if (this.endpoint.includes('albums')) {
+    } else if (this.mediatype === 'albums') {
       // albums listing
       this.sortKeys.push({ text: this.$t('sort_artist'), value: 'artist.name' })
       this.sortKeys.push({ text: this.$t('sort_date'), value: 'year' })
@@ -154,34 +153,25 @@ export default {
     } else {
       this.viewMode = 'list'
     }
-    // get stored viewMode for this endpoint
-    const viewMode = localStorage.getItem('viewMode' + this.mediatype + this.endpoint)
+    // get stored viewMode for this mediatype
+    const viewMode = localStorage.getItem('viewMode' + this.mediatype)
     if (viewMode !== null) {
       this.viewMode = viewMode
     }
-    if (this.$server.connected) {
-      this.getItems()
-    }
-    this.$server.$on('connected', this.getItems)
-    this.$server.$on('refresh_listing', this.getItems)
   },
   computed: {
     thumbWidth () {
-      return this.$store.isMobile ? 120 : 175
+      return this.$store.state.isMobile ? 120 : 175
     },
     thumbHeight () {
       return this.thumbWidth * 1.5
     }
   },
   methods: {
-    async getItems () {
-      // retrieve the full list of items
-      this.items = await this.$server.getData(this.endpoint)
-    },
     toggleViewMode () {
       if (this.viewMode === 'panel') this.viewMode = 'list'
       else this.viewMode = 'panel'
-      localStorage.setItem('viewMode' + this.mediatype + this.endpoint, this.viewMode)
+      localStorage.setItem('viewMode' + this.mediatype, this.viewMode)
     },
     filteredItems (items, search) {
       if (!search) return items

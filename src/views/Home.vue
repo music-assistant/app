@@ -30,7 +30,7 @@ export default {
     }
   },
   created () {
-    this.$store.windowtitle = this.$t('musicassistant')
+    this.$store.state.windowTitle = this.$t('musicassistant')
   }
 }
 </script>

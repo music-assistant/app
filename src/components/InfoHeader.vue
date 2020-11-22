@@ -13,16 +13,16 @@
         width="100%"
         height="360"
         position="center top"
-        :src="$server.getImageUrl(itemDetails, 'fanart')"
+        :src="getFanart(itemDetails)"
         gradient="to bottom, rgba(0,0,0,.90), rgba(0,0,0,.75)"
       >
         <div class="text-xs-center" style="height:40px;" id="whitespace_top" />
 
         <v-layout style="margin-left:5pxmargin-right:5px;" v-if="itemDetails">
           <!-- left side: cover image -->
-          <v-flex xs5 pa-5 v-if="!$store.isMobile">
+          <v-flex xs5 pa-5 v-if="!$store.state.isMobile">
             <v-img
-              :src="$server.getImageUrl(itemDetails)"
+              :src="getImage(itemDetails)"
               :lazy-src="require('../assets/default_artist.png')"
               width="220px"
               height="220px"
@@ -138,9 +138,8 @@
               <v-btn
                 style="margin-left:10px;"
                 v-if="
-                  !$store.isMobile &&
-                    !!itemDetails.in_library &&
-                    itemDetails.in_library.length == 0
+                  !$store.state.isMobile &&
+                    !itemDetails.in_library
                 "
                 color="primary"
                 tile
@@ -152,9 +151,8 @@
               <v-btn
                 style="margin-left:10px;"
                 v-if="
-                  !$store.isMobile &&
-                    !!itemDetails.in_library &&
-                    itemDetails.in_library.length > 0
+                  !$store.state.isMobile &&
+                    itemDetails.in_library
                 "
                 color="primary"
                 tile
@@ -170,7 +168,7 @@
               <div class="justify-left" style="text-shadow: 1px 1px #000000;">
                 <ReadMore
                   :text="getDescription()"
-                  :max-chars="$store.isMobile ? 140 : 260"
+                  :max-chars="$store.state.isMobile ? 140 : 260"
                 />
               </div>
             </v-card-subtitle>
@@ -209,24 +207,25 @@ export default Vue.extend({
   },
   mounted () { },
   created () {
-    this.$store.topBarTransparent = true
+    this.$store.state.topBarTransparent = true
   },
   beforeDestroy () {
-    this.$store.topBarTransparent = false
-    this.$store.topBarContextItem = null
+    this.$store.state.topBarTransparent = false
+    this.$store.state.topBarContextItem = null
   },
   watch: {
     itemDetails: function (val) {
       // set itemDetails as contextitem
       if (val) {
-        this.$store.topBarContextItem = val
+        this.$store.state.topBarContextItem = val
+        this.$store.state.windowTitle = val.name
       }
     }
   },
   methods: {
     visibilityChanged (isVisible, entry) {
-      if (isVisible) this.$store.topBarTransparent = true
-      else this.$store.topBarTransparent = false
+      if (isVisible) this.$store.state.topBarTransparent = true
+      else this.$store.state.topBarTransparent = false
     },
     artistClick (item) {
       // artist entry clicked
@@ -278,6 +277,22 @@ export default Vue.extend({
         }
       }
       return qualities
+    },
+    getImage (mediaItem) {
+      // get imageurl for mediaItem
+      if (!mediaItem || !mediaItem.media_type) return ''
+      if (mediaItem.metadata && mediaItem.metadata.image) return mediaItem.metadata.image
+      if (mediaItem.album && mediaItem.album.metadata && mediaItem.album.metadata.image) return mediaItem.album.metadata.image
+      if (mediaItem.artist && mediaItem.artist.metadata && mediaItem.artist.metadata.image) return mediaItem.artist.metadata.image
+    },
+    getFanart (mediaItem) {
+      // get fanart imageurl for mediaItem
+      if (!mediaItem || !mediaItem.media_type) return ''
+      if (mediaItem.metadata && mediaItem.metadata.fanart) return mediaItem.metadata.fanart
+      if (mediaItem.album && mediaItem.album.metadata && mediaItem.album.metadata.fanart) return mediaItem.album.metadata.fanart
+      if (mediaItem.artist && mediaItem.artist.metadata && mediaItem.artist.metadata.fanart) return mediaItem.artist.metadata.fanart
+      // fallback to regular image
+      return this.getImage(mediaItem)
     }
   }
 })

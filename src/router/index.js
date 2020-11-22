@@ -28,7 +28,7 @@ const routes = [
     props: route => ({ ...route.params, ...route.query })
   },
   {
-    path: '/:media_type/:media_id',
+    path: '/:media_type/:item_id',
     name: 'itemdetails',
     component: () => import(/* webpackChunkName: "itemdetails" */ '../views/ItemDetails.vue'),
     props: route => ({ ...route.params, ...route.query })

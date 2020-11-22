@@ -4,51 +4,51 @@
     <v-list-item style="height:50px;padding-bottom:5;">
       <v-list-item-avatar tile style="margin-left:-10px;">
         <v-icon large>{{
-          players[player_id].is_group ? "speaker_group" : "speaker"
+          player.is_group ? "speaker_group" : "speaker"
         }}</v-icon>
       </v-list-item-avatar>
       <v-list-item-content style="margin-left:-15px;">
-        <v-list-item-title>{{ players[player_id].name }}</v-list-item-title>
+        <v-list-item-title>{{ player.name }}</v-list-item-title>
         <v-list-item-subtitle>{{
-          $t("state." + players[player_id].state)
+          $t("state." + player.state)
         }}</v-list-item-subtitle>
       </v-list-item-content>
     </v-list-item>
     <v-divider></v-divider>
-    <div v-for="child_id in volumePlayerIds" :key="child_id">
+    <div v-for="childPlayer in volumePlayers" :key="childPlayer.player_id">
       <div
         class="body-2"
         :style="
-          !players[child_id].powered
+          !childPlayer.powered
             ? 'color:rgba(0,0,0,.38);'
             : 'color:rgba(0,0,0,.54);'
         "
       >
         <v-btn
           icon
-          @click="togglePlayerPower(child_id)"
+          @click="togglePlayerPower(childPlayer.player_id)"
           style="margin-left:8px"
           :style="
-            !players[child_id].powered
+            !childPlayer.powered
               ? 'color:rgba(0,0,0,.38);'
               : 'color:rgba(0,0,0,.54);'
           "
         >
           <v-icon>power_settings_new</v-icon>
         </v-btn>
-        <span style="margin-left:10px">{{ players[child_id].name }}</span>
+        <span style="margin-left:10px">{{ childPlayer.name }}</span>
         <div
           style="margin-top:-8px;margin-left:15px;margin-right:15px;height:35px;"
         >
           <v-slider
             lazy
-            :disabled="!players[child_id].powered"
-            :value="Math.round(players[child_id].volume_level)"
+            :disabled="!childPlayer.powered"
+            :value="Math.round(childPlayer.volume_level)"
             prepend-icon="volume_down"
             append-icon="volume_up"
-            @end="setPlayerVolume(child_id, $event)"
-            @click:append="setPlayerVolume(child_id, 'up')"
-            @click:prepend="setPlayerVolume(child_id, 'down')"
+            @end="setPlayerVolume(childPlayer.player_id, $event)"
+            @click:append="setPlayerVolume(childPlayer.player_id, 'up')"
+            @click:prepend="setPlayerVolume(childPlayer.player_id, 'down')"
           ></v-slider>
         </div>
       </div>
@@ -60,41 +60,37 @@
 
 <script>
 import Vue from 'vue'
+import { mapGetters } from 'vuex'
 
 export default Vue.extend({
-  props: ['value', 'players', 'player_id'],
+  props: ['player'],
   data () {
     return {}
   },
   computed: {
-    volumePlayerIds () {
-      var allIds = [this.player_id]
-      for (const groupChildId of this.players[this.player_id].group_childs) {
-        if (this.players[groupChildId] && this.players[groupChildId].available) {
-          allIds.push(groupChildId)
+    ...mapGetters(['getAvailablePlayers', 'getPlayer']),
+    volumePlayers () {
+      var items = [this.player]
+      for (const groupChildId of this.player.group_childs) {
+        const volumeChild = this.getPlayer(groupChildId)
+        if (volumeChild && volumeChild.available) {
+          items.push(volumeChild)
         }
       }
-      return allIds
+      return items
     }
   },
   mounted () { },
   methods: {
     setPlayerVolume: function (playerId, newVolume) {
-      // if (newVolume === 'up') {
-      //   this.$server.playerCommand('volume_up', null, playerId)
-      // } else if (newVolume === 'down') {
-      //   this.$server.playerCommand('volume_down', null, playerId)
-      // } else {
-      //   this.$server.playerCommand('volume_set', newVolume, playerId)
-      //   this.players[playerId].volume_level = newVolume
-      // }
       if (newVolume === 'up') {
-        newVolume = this.$server.players[playerId].volume_level + 1
+        this.$server.playerCommand('volume_up', null, playerId)
       } else if (newVolume === 'down') {
-        newVolume = this.$server.players[playerId].volume_level - 1
+        this.$server.playerCommand('volume_down', null, playerId)
+      } else {
+        this.$server.playerCommand('volume_set', newVolume, playerId)
+        // this.players[playerId].volume_level = newVolume
       }
-      this.$server.playerCommand('volume_set', newVolume, playerId)
-      this.players[playerId].volume_level = newVolume
     },
     togglePlayerPower: function (playerId) {
       this.$server.playerCommand('power_toggle', null, playerId)

@@ -16,15 +16,12 @@
       width="100%"
       color="#E0E0E0"
       style="margin-top:1px;"
-      v-if="!$store.isMobile"
+      v-if="!$store.state.isMobile"
     >
       <!-- now playing media -->
       <v-list-item two-line>
         <v-list-item-avatar tile v-if="curQueueItem">
-          <img
-            :src="$server.getImageUrl(curQueueItem)"
-            style="border: 1px solid rgba(0,0,0,.54);"
-          />
+          <MediaItemThumb :item="curQueueItem" :key="curQueueItem.item_id" :size="80" style="border: 1px solid rgba(0,0,0,.54);"/>
         </v-list-item-avatar>
         <v-list-item-avatar v-else>
           <v-icon>speaker</v-icon>
@@ -34,8 +31,8 @@
           <v-list-item-title v-if="curQueueItem">
             {{ curQueueItem.name }}</v-list-item-title
           >
-          <v-list-item-title v-else-if="$server.activePlayer">
-            {{ $server.activePlayer.name }}</v-list-item-title
+          <v-list-item-title v-else-if="getSelectedPlayer">
+            {{ getSelectedPlayer.name }}</v-list-item-title
           >
           <v-list-item-subtitle v-if="curQueueItem" style="color: primary">
             <span
@@ -73,7 +70,7 @@
               <v-subheader class="title">{{ $t('stream_details') }}</v-subheader>
                 <v-list-item tile dense>
                   <v-list-item-icon>
-                    <v-img max-width="50" contain :src="streamDetails.provider ? $server.getProviderIconUrl(streamDetails.provider) : ''" />
+                    <v-img max-width="50" contain :src="getProviderIcon(streamDetails.provider)" />
                   </v-list-item-icon>
                   <v-list-item-content>
                     <v-list-item-title>{{ streamDetails.provider }}</v-list-item-title>
@@ -89,7 +86,7 @@
                   </v-list-item-content>
                 </v-list-item>
                 <v-divider></v-divider>
-                <div v-if="playerQueueDetails.crossfade_enabled">
+                <div v-if="getSelectedPlayerQueue && getSelectedPlayerQueue.crossfade_enabled">
                   <v-list-item tile dense>
                   <v-list-item-icon>
                     <v-img max-width="50" contain :src="require('../assets/crossfade.png')"/>
@@ -151,22 +148,22 @@
         dense
         style="height:62px;margin-bottom:5px;margin-top:-4px;background-color:black;"
       >
-        <v-list-item-action v-if="$server.activePlayer" style="margin-top:15px">
+        <v-list-item-action v-if="getSelectedPlayer" style="margin-top:15px">
           <v-btn small icon @click="playerCommand('previous')">
             <v-icon>skip_previous</v-icon>
           </v-btn>
         </v-list-item-action>
         <v-list-item-action
-          v-if="$server.activePlayer"
+          v-if="getSelectedPlayer"
           style="margin-left:-32px;margin-top:15px"
         >
           <v-btn icon x-large @click="playerCommand('play_pause')">
             <v-icon size="50">{{
-              $server.activePlayer.state == "playing" ? "pause" : "play_arrow"
+              getSelectedPlayer.state == "playing" ? "pause" : "play_arrow"
             }}</v-icon>
           </v-btn>
         </v-list-item-action>
-        <v-list-item-action v-if="$server.activePlayer" style="margin-top:15px">
+        <v-list-item-action v-if="getSelectedPlayer" style="margin-top:15px">
           <v-btn icon small @click="playerCommand('next')">
             <v-icon>skip_next</v-icon>
           </v-btn>
@@ -175,7 +172,7 @@
         <v-list-item-content> </v-list-item-content>
 
         <!-- active player queue button -->
-        <v-list-item-action style="padding:16px;" v-if="$server.activePlayer">
+        <v-list-item-action style="padding:16px;" v-if="getSelectedPlayer">
           <v-btn
             text
             icon
@@ -189,7 +186,7 @@
         </v-list-item-action>
 
         <!-- active player volume -->
-        <v-list-item-action style="padding:16px;" v-if="$server.activePlayer && !$store.isMobile">
+        <v-list-item-action style="padding:16px;" v-if="getSelectedPlayer && !$store.state.isMobile">
           <v-menu
             :close-on-content-click="false"
             :nudge-width="250"
@@ -202,25 +199,24 @@
                 <v-flex xs12 class="vertical-btn">
                   <v-icon>volume_up</v-icon>
                   <span class="caption" style="padding-top: 5px">{{
-                    Math.round($server.activePlayer.volume_level)
+                    Math.round(getSelectedPlayer.volume_level)
                   }}</span>
                 </v-flex>
               </v-btn>
             </template>
             <VolumeControl
-              v-bind:players="$server.players"
-              v-bind:player_id="$server.activePlayer.player_id"
+              v-bind:player="getSelectedPlayer"
             />
           </v-menu>
         </v-list-item-action>
 
         <!-- active player btn -->
         <v-list-item-action style="padding:15px;margin-right:15px">
-          <v-btn text icon @click="$server.$emit('showPlayersMenu')">
+          <v-btn text icon @click="$store.state.showPlayersMenu = true">
             <v-flex xs12 class="vertical-btn">
               <v-icon>speaker</v-icon>
-              <span class="caption" v-if="$server.activePlayer" style="padding-top: 5px">{{
-                truncateString($server.activePlayer.name, 12)
+              <span class="caption" v-if="getSelectedPlayer" style="padding-top: 5px">{{
+                truncateString(getSelectedPlayer.name, 12)
               }}</span>
               <span class="caption" v-else> </span>
             </v-flex>
@@ -236,7 +232,7 @@
         tile
         width="100%"
         color="black"
-        style="height:20px" v-if="$store.isInStandaloneMode"/>
+        style="height:20px" v-if="$store.state.isInStandaloneMode"/>
   </v-footer>
 </template>
 
@@ -262,22 +258,30 @@
 <script>
 import Vue from 'vue'
 import VolumeControl from '@/components/VolumeControl.vue'
+import MediaItemThumb from '@/components/MediaItemThumb.vue'
+import { mapGetters } from 'vuex'
 
 export default Vue.extend({
   components: {
-    VolumeControl
+    VolumeControl,
+    MediaItemThumb
   },
   props: [],
   data () {
-    return {
-      playerQueueDetails: {}
-    }
+    return {}
   },
   watch: { },
   computed: {
+    ...mapGetters([
+      'selectedPlayer',
+      'getSelectedPlayerQueue',
+      'getSelectedPlayerId',
+      'getSelectedPlayer',
+      'getPlayers',
+      'getProviderIcon']),
     curQueueItem () {
-      if (this.playerQueueDetails) {
-        return this.playerQueueDetails.cur_item
+      if (this.getSelectedPlayerQueue) {
+        return this.getSelectedPlayerQueue.cur_item
       } else {
         return null
       }
@@ -285,13 +289,13 @@ export default Vue.extend({
     progress () {
       if (!this.curQueueItem) return 0
       var totalSecs = this.curQueueItem.duration
-      var curSecs = this.playerQueueDetails.cur_item_time
+      var curSecs = this.getSelectedPlayerQueue.cur_item_time
       var curPercent = curSecs / totalSecs * 100
       return curPercent
     },
     playerCurTimeStr () {
       if (!this.curQueueItem) return '0:00'
-      var curSecs = this.playerQueueDetails.cur_item_time
+      var curSecs = this.getSelectedPlayerQueue.cur_item_time
       return curSecs.toString().formatDuration()
     },
     playerTotalTimeStr () {
@@ -303,8 +307,8 @@ export default Vue.extend({
       return window.innerWidth - 160
     },
     streamDetails () {
-      if (!this.playerQueueDetails.cur_item || !this.playerQueueDetails.cur_item || !this.playerQueueDetails.cur_item.streamdetails || !this.playerQueueDetails.cur_item.streamdetails.provider || !this.playerQueueDetails.cur_item.streamdetails.content_type) return {}
-      return this.playerQueueDetails.cur_item.streamdetails
+      if (!this.getSelectedPlayerQueue || !this.getSelectedPlayerQueue.cur_item || !this.getSelectedPlayerQueue.cur_item || !this.getSelectedPlayerQueue.cur_item.streamdetails || !this.getSelectedPlayerQueue.cur_item.streamdetails.provider || !this.getSelectedPlayerQueue.cur_item.streamdetails.content_type) return {}
+      return this.getSelectedPlayerQueue.cur_item.streamdetails
     },
     streamVolumeLevelAdjustment () {
       if (!this.streamDetails || !this.streamDetails.sox_options) return ''
@@ -317,33 +321,15 @@ export default Vue.extend({
     }
   },
   created () {
-    this.$server.$on('queue updated', this.queueUpdatedMsg)
-    this.$server.$on('queue time updated', this.queueUpdatedMsg)
-    this.$server.$on('new player selected', this.getQueueDetails)
   },
   methods: {
     playerCommand (cmd, cmd_opt = null) {
-      this.$server.playerCommand(cmd, cmd_opt, this.$server.activePlayerId)
+      this.$server.playerCommand(cmd, cmd_opt, this.$store.selectedPlayerId)
     },
     artistClick (item) {
       // artist entry clicked within the listviewItem
       var url = '/artists/' + item.item_id
       this.$router.push({ path: url, query: { provider: item.provider } })
-    },
-    queueUpdatedMsg (data) {
-      const queueId = this.$server.players[this.$server.activePlayerId].active_queue
-      if (data.player_id === queueId) {
-        for (const [key, value] of Object.entries(data)) {
-          Vue.set(this.playerQueueDetails, key, value)
-        }
-      }
-    },
-    async getQueueDetails () {
-      if (this.$server.activePlayer) {
-        const queueId = this.$server.players[this.$server.activePlayerId].active_queue
-        const endpoint = 'players/' + queueId + '/queue'
-        this.playerQueueDetails = await this.$server.getData(endpoint)
-      }
     },
     truncateString (str, num) {
       // If the length of str is less than or equal to num

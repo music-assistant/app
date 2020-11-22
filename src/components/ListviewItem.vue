@@ -8,10 +8,7 @@
       v-longpress="menuClick"
     >
       <v-list-item-avatar tile color="grey" v-if="!hideavatar">
-        <img
-          :src="$server.getImageUrl(item, 'image', 80)"
-          style="border: 1px solid rgba(0,0,0,.22);"
-        />
+        <MediaItemThumb :item="item" :size="80" style="border: 1px solid rgba(0,0,0,.22);" />
       </v-list-item-avatar>
 
       <v-list-item-content>
@@ -82,18 +79,18 @@
               @click.prevent
               @click.stop
             >
-              <v-icon height="20" v-if="item.in_library.length > 0"
+              <v-icon height="20" v-if="item.in_library"
                 >favorite</v-icon
               >
-              <v-icon height="20" v-if="item.in_library.length == 0"
+              <v-icon height="20" v-if="!item.in_library"
                 >favorite_border</v-icon
               >
             </v-btn>
           </template>
-          <span v-if="item.in_library.length > 0">{{
+          <span v-if="item.in_library">{{
             $t("remove_library")
           }}</span>
-          <span v-if="item.in_library.length == 0">{{
+          <span v-if="!item.in_library">{{
             $t("add_library")
           }}</span>
         </v-tooltip>
@@ -120,6 +117,7 @@
 <script>
 import Vue from 'vue'
 import ProviderIcons from '@/components/ProviderIcons.vue'
+import MediaItemThumb from '@/components/MediaItemThumb.vue'
 
 const PRESS_TIMEOUT = 600
 
@@ -151,7 +149,8 @@ Vue.directive('longpress', {
 
 export default Vue.extend({
   components: {
-    ProviderIcons
+    ProviderIcons,
+    MediaItemThumb
   },
   props: {
     item: Object,
@@ -229,6 +228,10 @@ export default Vue.extend({
         if (x.available) return true
       }
       return false
+    },
+    getImage (mediaItem) {
+      // get image(thumb) for mediaItem
+      return this.getImageUrl()
     }
   }
 })

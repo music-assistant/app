@@ -16,11 +16,11 @@
           >
             <ListviewItem
               v-bind:item="item"
-              :hideavatar="item.media_type == 3 ? $store.isMobile : false"
+              :hideavatar="item.media_type == 3 ? $store.state.isMobile : false"
               :hidetracknum="true"
-              :hideproviders="$store.isMobile"
-              :hidelibrary="$store.isMobile"
-              :hidemenu="$store.isMobile"
+              :hideproviders="$store.state.isMobile"
+              :hidelibrary="$store.state.isMobile"
+              :hidemenu="$store.state.isMobile"
               :onclickHandler="itemClicked"
             ></ListviewItem>
           </RecycleScroller>
@@ -43,23 +43,23 @@
           >
             <ListviewItem
               v-bind:item="item"
-              :hideavatar="item.media_type == 3 ? $store.isMobile : false"
+              :hideavatar="item.media_type == 3 ? $store.state.isMobile : false"
               :hidetracknum="true"
-              :hideproviders="$store.isMobile"
-              :hidelibrary="$store.isMobile"
-              :hidemenu="$store.isMobile"
+              :hideproviders="$store.state.isMobile"
+              :hidelibrary="$store.state.isMobile"
+              :hidemenu="$store.state.isMobile"
               :onclickHandler="itemClicked"
             ></ListviewItem>
           </RecycleScroller>
         </v-list>
       </v-tab-item>
-      <v-menu offset-y>
+      <v-menu offset-y v-if="getSelectedPlayerQueue">
         <template v-slot:activator="{ on }">
-          <v-btn text v-on="on" class="align-self-center mr-4" v-if="!$store.isMobile">
+          <v-btn text v-on="on" class="align-self-center mr-4" v-if="!$store.state.isMobile">
             {{ $t("queue_options") }}
             <v-icon right>arrow_drop_down</v-icon>
           </v-btn>
-          <v-btn icon v-on="on" class="align-self-center mr-4" v-if="$store.isMobile">
+          <v-btn icon v-on="on" class="align-self-center mr-4" v-if="$store.state.isMobile">
             <v-icon>settings</v-icon>
           </v-btn>
         </template>
@@ -69,7 +69,7 @@
             @click="
               sendQueueCommand(
                 'repeat_enabled',
-                !playerQueueDetails.repeat_enabled
+                !getSelectedPlayerQueue.repeat_enabled
               )
             "
           >
@@ -79,7 +79,7 @@
             <v-list-item-content>
               <v-list-item-title
                 v-text="
-                  playerQueueDetails.repeat_enabled
+                  getSelectedPlayerQueue.repeat_enabled
                     ? $t('disable_repeat')
                     : $t('enable_repeat')
                 "
@@ -90,7 +90,7 @@
             @click="
               sendQueueCommand(
                 'shuffle_enabled',
-                !playerQueueDetails.shuffle_enabled
+                !getSelectedPlayerQueue.shuffle_enabled
               )
             "
           >
@@ -100,7 +100,7 @@
             <v-list-item-content>
               <v-list-item-title
                 v-text="
-                  playerQueueDetails.shuffle_enabled
+                  getSelectedPlayerQueue.shuffle_enabled
                     ? $t('disable_shuffle')
                     : $t('enable_shuffle')
                 "
@@ -174,8 +174,9 @@
 <script>
 import Vue from 'vue'
 import ListviewItem from '@/components/ListviewItem.vue'
+import { mapGetters } from 'vuex'
 
-export default {
+export default Vue.extend({
   components: {
     ListviewItem
   },
@@ -184,63 +185,50 @@ export default {
     return {
       items: [],
       activeTab: 0,
-      playerQueueDetails: {},
       showPlayMenu: false,
       selectedItem: {}
     }
   },
+  watch: {
+    getSelectedPlayerQueue: function (val) {
+      this.getQueueItems()
+    }
+  },
   computed: {
+    ...mapGetters(['getSelectedPlayerQueue']),
     next_items () {
-      if (this.playerQueueDetails) {
-        return this.items.slice(this.playerQueueDetails.cur_index)
+      if (this.getSelectedPlayerQueue) {
+        return this.items.slice(this.getSelectedPlayerQueue.cur_index)
       } else return []
     },
     previous_items () {
-      if (this.playerQueueDetails && this.$server.activePlayer) {
-        return this.items.slice(0, this.playerQueueDetails.cur_index)
+      if (this.getSelectedPlayerQueue && this.selectedPlayer) {
+        return this.items.slice(0, this.getSelectedPlayerQueue.cur_index)
       } else return []
     }
   },
   created () {
-    this.$store.windowtitle = this.$t('queue')
-    this.$server.$on('queue updated', this.onQueueDetailsEvent)
-    this.$server.$on('queue items updated', this.onQueueItemsEvent)
-    this.$server.$on('new player selected', this.activePlayerChanged)
-    if (this.$server.activePlayerId) this.activePlayerChanged()
+    this.$store.state.windowTitle = this.$t('queue')
+    this.$server.$on('queue items updated', this.getQueueItems)
+    this.getQueueItems()
   },
   methods: {
     itemClicked (item) {
       this.selectedItem = item
       this.showPlayMenu = !this.showPlayMenu
     },
-    async activePlayerChanged () {
-      /// get queue details once when we have a new active player
-      const queueId = this.$server.players[this.$server.activePlayerId].active_queue
-      const endpoint = 'players/' + queueId + '/queue'
-      const queueDetails = await this.$server.getData(endpoint)
-      await this.onQueueDetailsEvent(queueDetails)
-      await this.onQueueItemsEvent(queueDetails)
-    },
-    async onQueueDetailsEvent (data) {
-      const queueId = this.$server.players[this.$server.activePlayerId].active_queue
-      if (data.player_id === queueId) {
-        for (const [key, value] of Object.entries(data)) {
-          Vue.set(this.playerQueueDetails, key, value)
-        }
-      }
-    },
-    async onQueueItemsEvent (data) {
-      const queueId = this.$server.players[this.$server.activePlayerId].active_queue
-      if (data.player_id === queueId) {
-        const endpoint = 'players/' + data.player_id + '/queue/items'
-        this.items = await this.$server.getData(endpoint, this.items)
-      }
+    async getQueueItems () {
+      if (!this.getSelectedPlayerQueue) return
+      const endpoint = 'players/' + this.getSelectedPlayerQueue.queue_id + '/queue/items'
+      this.$server.sendWsCommand(endpoint, null, function (res) {
+        this.items = res
+      }.bind(this))
     },
     sendQueueCommand (cmd, cmd_args = null) {
-      const queueId = this.$server.players[this.$server.activePlayerId].active_queue
+      const queueId = this.$server.players[this.$store.selectedPlayerId].active_queue
       const endpoint = 'players/' + queueId + '/queue/' + cmd
       this.$server.putData(endpoint, cmd_args)
     }
   }
-}
+})
 </script>

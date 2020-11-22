@@ -1,201 +1,129 @@
-'use strict'
-
 import Vue from 'vue'
-import axios from 'axios'
+import { mapState, mapGetters, mapActions } from 'vuex'
 
-const axiosConfig = {
-  timeout: 15 * 1000
-  // withCredentials: true, // Check cross-site Access-Control
-}
-const _axios = axios.create(axiosConfig)
-
-// Holds the connection to the server
+// Holds the (websocket) connection to the MusicAssistant server
 
 const server = new Vue({
-  _address: '',
   _ws: null,
-  _serverAddress: null,
-  _username: null,
-  _password: null,
 
   data () {
     return {
       connected: false,
-      players: {},
-      activePlayerId: null,
-      syncStatus: [],
-      tokenInfo: {}
+      tokenInfo: {},
+      serverAddress: {},
+      wsQueueId: 0,
+      wsQueueCallbacks: {}
+    }
+  },
+  computed: {
+    ...mapState([
+      'selectedPlayerId'
+    ]),
+    ...mapGetters([
+      'getPlayer',
+      'getPlayers'
+    ])
+  },
+  created () {
+    // If we have connection details in storage, use them to connect
+    const serverAddress = localStorage.getItem('serverAddress')
+    const tokenInfo = localStorage.getItem('tokenInfo')
+    if (serverAddress && tokenInfo) {
+      this.serverAddress = serverAddress
+      this.tokenInfo = JSON.parse(tokenInfo)
+      this.wsConnect()
+      setTimeout(() => {
+        if (!this.connected) {
+          // handle usecase where serveraddress changed
+          this.dispatchShowLoginForm()
+        }
+      }, 3000)
+    } else {
+      // race condition: store is not yet available at this point so delay a bit
+      setTimeout(() => {
+        this.dispatchShowLoginForm()
+      }, 500)
     }
   },
   methods: {
-
-    async login (serverAddress, username, password, port = 8095, ssl = false) {
-      // Connect to the server by logging in
-      if (!serverAddress.startsWith('http') && ssl) {
-        serverAddress = 'https://' + serverAddress + ':' + port
-      }
-      if (!serverAddress.startsWith('http') && !ssl) {
-        serverAddress = 'http://' + serverAddress + ':' + port
-      }
-      if (!serverAddress.endsWith('/')) {
-        serverAddress = serverAddress + '/'
-      }
-      const url = serverAddress + 'login'
-      const data = JSON.stringify({ username: username, password: password })
-      try {
-        Vue.$log.info('Connecting to ' + serverAddress)
-        const result = await _axios.post(url, data)
-        this.tokenInfo = result.data
-      } catch {
-        Vue.$log.error('login failed for ' + serverAddress)
-        return false
-      }
-      _axios.defaults.headers.common.Authorization =
-        'Bearer ' + this.tokenInfo.token
-      this._serverAddress = serverAddress
-      this.wsConnect()
-      return true
-    },
+    ...mapActions([
+      'dispatchShowLoginForm',
+      'dispatchHideLoginForm',
+      'switchSelectedPlayer'
+    ]),
 
     async toggleLibrary (item) {
       /// triggered when user clicks the library (heart) button
-      if (item.in_library.length === 0) {
+      const data = { items: [item] }
+      if (!item.in_library) {
         // add to library
-        await this.putData('library', item)
-        item.in_library = [item.provider]
+        this.sendWsCommand('library/add', data)
+        item.in_library = true
       } else {
         // remove from library
-        await this.deleteData('library', item)
-        item.in_library = []
+        this.sendWsCommand('library/remove', data)
+        item.in_library = false
       }
     },
 
-    getImageUrl (mediaItem, imageType = 'image', size = 0) {
-      // format the image url
-      if (!mediaItem || !mediaItem.media_type) return ''
-      if (size > 0 && imageType === 'image') {
-        return `${this._serverAddress}api/images/thumb?provider=${mediaItem.provider}&item_id=${mediaItem.item_id}&media_type=${mediaItem.media_type}&size=${size}`
-      } else if (mediaItem.metadata && mediaItem.metadata[imageType]) {
-        return mediaItem.metadata[imageType]
-      } else if (
-        mediaItem.album &&
-        mediaItem.album.metadata &&
-        mediaItem.album.metadata[imageType]
-      ) {
-        return mediaItem.album.metadata[imageType]
-      } else if (
-        mediaItem.artist &&
-        mediaItem.artist.metadata &&
-        mediaItem.artist.metadata[imageType]
-      ) {
-        return mediaItem.artist.metadata[imageType]
-      } else if (
-        mediaItem.album &&
-        mediaItem.album.artist &&
-        mediaItem.album.artist.metadata &&
-        mediaItem.album.artist.metadata[imageType]
-      ) {
-        return mediaItem.album.artist.metadata[imageType]
-      } else if (
-        mediaItem.artists &&
-        mediaItem.artists[0].metadata &&
-        mediaItem.artists[0].metadata[imageType]
-      ) {
-        return mediaItem.artists[0].metadata[imageType]
-      } else if (imageType === 'fanart') {
-        // fallback to normal image instead of fanart
-        return this.getImageUrl(mediaItem, 'image')
-      } else return ''
+    playerCommand (cmd, cmdOpt = '', playerId = null) {
+      if (!playerId) playerId = this.selectedPlayerId
+      let endpoint = `players/${playerId}/cmd/${cmd}`
+      if (cmdOpt) endpoint += '/' + cmdOpt
+      this.sendWsCommand(endpoint)
     },
 
-    getProviderIconUrl (providerId) {
-      return `${this._serverAddress}api/images/provider-icon/${providerId}`
-    },
-
-    async getData (endpoint, params = {}) {
-      // get data from the server
-      const url = this._serverAddress + 'api/' + endpoint
-      const result = await _axios.get(url, { params: params })
-      Vue.$log.debug('getData', endpoint, result)
-      return result.data
-    },
-
-    async postData (endpoint, data) {
-      // post data to the server
-      const url = this._serverAddress + 'api/' + endpoint
-      data = JSON.stringify(data)
-      const result = await _axios.post(url, data)
-      Vue.$log.debug('postData', endpoint, result)
-      return result.data
-    },
-
-    async putData (endpoint, data) {
-      // put data to the server
-      const url = this._serverAddress + 'api/' + endpoint
-      data = JSON.stringify(data)
-      const result = await _axios.put(url, data)
-      Vue.$log.debug('putData', endpoint, result)
-      return result.data
-    },
-
-    async deleteData (endpoint, dataObj) {
-      // delete data on the server
-      const url = this._serverAddress + 'api/' + endpoint
-      dataObj = JSON.stringify(dataObj)
-      const result = await _axios.delete(url, { data: dataObj })
-      Vue.$log.debug('deleteData', endpoint, result)
-      return result.data
-    },
-
-    playerCommand (cmd, cmd_opt = '', playerId = this.activePlayerId) {
-      const endpoint = 'players/' + playerId + '/cmd/' + cmd
-      this.postData(endpoint, cmd_opt)
-    },
-
-    async playItem (item, queueOpt) {
-      this.$store.loading = true
-      const endpoint =
-        'players/' + this.activePlayerId + '/play_media/' + queueOpt
-      await this.postData(endpoint, item)
-      this.$store.loading = false
-    },
-
-    switchPlayer (newPlayerId) {
-      if (newPlayerId !== this.activePlayerId) {
-        this.activePlayerId = newPlayerId
-        localStorage.setItem('activePlayerId', newPlayerId)
-        this.$emit('new player selected', newPlayerId)
+    async playMedia (item, queueOpt, playerId = null) {
+      if (!playerId) playerId = this.selectedPlayerId
+      const data = {
+        items: item,
+        queue_opt: queueOpt
       }
+      this.sendWsCommand(`players/${playerId}/play_media`, data)
     },
 
     async wsConnect () {
       // Connect websockets
-      const wsAddress = this._serverAddress.replace('http', 'ws') + 'ws'
-      this._ws = new WebSocket(wsAddress)
+      this._ws = new WebSocket(this.serverAddress)
       this._ws.onopen = this._onWsConnect
       this._ws.onmessage = this._onWsMessage
-      this._ws.onerror = () => {
+      this._ws.onerror = (e) => {
+        Vue.$log.error('Error in serverconnection', e)
         this._ws.close()
       }
     },
 
-    sendWsMessage (message, messageDetails) {
-      // emit a message to the server through websocket connection
+    sendWsCommand (command, data = null, cbFunc = null) {
+      // emit a command to the server through websocket connection
+      if (!this._ws) {
+        setTimeout(() => {
+          this.sendWsCommand(command, data)
+        }, 1000)
+        return
+      }
+      this.wsQueueId++
+      if (typeof (cbFunc) === 'function') {
+        this.wsQueueCallbacks[this.wsQueueId] = cbFunc
+      }
       this._ws.send(
         JSON.stringify({
-          message: message,
-          message_details: messageDetails
+          command: command,
+          data: data,
+          id: this.wsQueueId
         })
       )
     },
 
     async _onWsConnect () {
       // Websockets connection established
-
       clearInterval(this.timerId)
-
       this._ws.onclose = (e) => {
-        // make sure we're auto reconnecting
+        if (!this.connected) {
+          // this is the first connection, no need for reconnect as this will be handled by login procedure
+          return
+        }
+        // existing connection lost, start auto reconnect
+        this.connected = false
         Vue.$log.error(
           'Socket is closed. Reconnect will be attempted in 10 seconds.',
           e.reason
@@ -204,102 +132,171 @@ const server = new Vue({
           this.wsConnect()
         }, 10000)
       }
-      this.sendWsMessage('login', this.tokenInfo.token)
-
-      // retrieve all players once through api on connect
-      const players = await this.getData('players')
-      for (const player of players) {
-        Vue.set(this.players, player.player_id, player)
-      }
-      this._selectActivePlayer()
-      this.$emit('players changed')
+      // send authentication request
+      this.sendWsCommand('auth', this.tokenInfo.token)
     },
 
     async _onWsMessage (e) {
       // Message retrieved on the websocket
       var msg = JSON.parse(e.data)
-      if (msg.message === 'error') {
-        if (msg.message_details.includes('authorization')) {
-          this._ws.close()
-          this.$store.showLoginForm()
-        } else {
-          Vue.$log.error(msg.message_details)
-        }
-      } else if (msg.message === 'login') {
+      if (msg.error) {
+        this._onServerError(msg)
+      } else if (msg.result === 'auth') {
         // login was successfull
-        Vue.$log.info('Connected to websocket ' + this._serverAddress)
-        this.connected = true
-        this.$emit('connected')
-        // register callbacks
-        this.sendWsMessage('add_event_listener', null)
-        // register audio player
-        this.$mediaPlayer.registerAudioPlayer()
-      } else if (msg.message === 'player changed') {
-        Vue.set(
-          this.players,
-          msg.message_details.player_id,
-          msg.message_details
-        )
-      } else if (msg.message === 'player added') {
-        Vue.set(
-          this.players,
-          msg.message_details.player_id,
-          msg.message_details
-        )
-        this._selectActivePlayer()
-        this.$emit('players changed')
-      } else if (msg.message === 'player removed') {
-        Vue.delete(this.players, msg.message_details.player_id)
-        this._selectActivePlayer()
-        this.$emit('players changed')
-      } else if (msg.message === 'music sync status') {
-        this.syncStatus = msg.message_details
-      } else {
-        this.$emit(msg.message, msg.message_details)
+        this._onServerConnected()
+      } else if (msg.event) {
+        // event from server
+        this._onServerEvent(msg)
+      } else if (msg.result) {
+        // result to direct requests
+        this._onServerResult(msg)
+      } else if (msg.command) {
+        // command from server to this client
+        Vue.$log.debug(msg)
+        // for now, simply emit it on eventbus
+        this.$emit(msg.command, msg.data)
       }
     },
 
-    _selectActivePlayer () {
+    async _onServerConnected () {
+      // Server connected and authenticated
+      Vue.$log.info('Connected to server ' + this.serverAddress)
+      this.connected = true
+      this.dispatchHideLoginForm()
+      // request all base listings
+      this.sendWsCommand('info')
+      this.sendWsCommand('players')
+      this.sendWsCommand('players/queues')
+      this.sendWsCommand('library/tracks')
+      this.sendWsCommand('library/artists')
+      this.sendWsCommand('library/albums')
+      this.sendWsCommand('library/playlists')
+      this.sendWsCommand('library/radios')
+      this.sendWsCommand('images/provider-icons')
+      this.sendWsCommand('config')
+      // register audio player
+      // this.$mediaPlayer.registerAudioPlayer()
+    },
+
+    async _onServerError (msg) {
+      // Error received from server
+      if (msg.result === 'auth') {
+        // login error
+        this._ws.close()
+        this.dispatchShowLoginForm()
+      } else {
+        // simply log it for now
+        Vue.$log.error(msg)
+      }
+    },
+
+    async _onServerEvent (msg) {
+      // Event received from server
+      if (msg.event === 'player changed') {
+        this.$store.commit('commitPlayer', msg.data)
+      } else if (msg.event === 'player added') {
+        this.$store.commit('commitPlayer', msg.data)
+        this.selectPlayer()
+      } else if (msg.event === 'player removed') {
+        this.$store.commit('deletePlayer', msg.data.player_id)
+        this.selectPlayer()
+      } else if (msg.event === 'music sync status') {
+        this.syncStatus = msg.data
+      } else if (msg.event === 'artist added') {
+        this.$store.commit('commitArtist', msg.data)
+      } else if (msg.event === 'album added') {
+        this.$store.commit('commitAlbum', msg.data)
+      } else if (msg.event === 'queue time updated') {
+        this.$store.commit('commitPlayerQueueTime', msg.data)
+      } else if (msg.event === 'queue updated') {
+        this.$store.commit('commitPlayerQueue', msg.data)
+      } else if (msg.event === 'config changed') {
+        // simply request latest config when we receive event that it changed
+        this.sendWsCommand('config')
+      } else {
+        // unknown event, simply emit it on eventbus.
+        Vue.$log.debug(msg)
+        this.$emit(msg.event, msg.data)
+      }
+    },
+
+    async _onServerResult (msg) {
+      // Result received from server
+      if (msg.result === 'library/tracks') {
+        this.$store.commit('commitTracks', msg.data)
+      } else if (msg.result.startsWith('tracks/' && !msg.result.includes('versions'))) {
+        this.$store.commit('commitTrack', msg.data)
+      } else if (msg.result === 'library/artists') {
+        this.$store.commit('commitArtists', msg.data)
+      } else if (msg.result.startsWith('artists/') && !msg.result.includes('tracks') && !msg.result.includes('albums')) {
+        this.$store.commit('commitArtist', msg.data)
+      } else if (msg.result === 'library/albums') {
+        this.$store.commit('commitAlbums', msg.data)
+      } else if (msg.result.startsWith('albums/') && !msg.result.includes('versions') && !msg.result.includes('tracks')) {
+        this.$store.commit('commitAlbum', msg.data)
+      } else if (msg.result === 'library/playlists') {
+        this.$store.commit('commitPlaylists', msg.data)
+      } else if (msg.result.startsWith('playlists/') && !msg.result.includes('tracks')) {
+        this.$store.commit('commitPlaylist', msg.data)
+      } else if (msg.result === 'library/radios') {
+        this.$store.commit('commitRadios', msg.data)
+      } else if (msg.result.startsWith('radios/')) {
+        this.$store.commit('commitRadio', msg.data)
+      } else if (msg.result === 'players') {
+        this.$store.commit('commitPlayers', msg.data)
+        this.selectPlayer()
+      } else if (msg.result === 'players/queues') {
+        this.$store.commit('commitPlayerQueues', msg.data)
+      } else if (msg.result === 'images/provider-icons') {
+        this.$store.commit('commitProviderIcons', msg.data)
+      } else if (msg.result === 'info') {
+        this.serverInfo = msg.data
+        localStorage.setItem('serverInfo', JSON.stringify(this.serverInfo))
+      } else if (msg.result === 'config') {
+        this.$store.state.config = msg.data
+      } else if (msg.id in this.wsQueueCallbacks) {
+        // reponse to custom request with callback
+        const callback = this.wsQueueCallbacks[msg.id]
+        delete this.wsQueueCallbacks[msg.id]
+        callback(msg.data)
+      } else {
+        // unknown result, simply emit it on the eventbus
+        this.$emit(msg.result, msg.data)
+      }
+    },
+
+    selectPlayer () {
       // auto select new active player if we have none
-      if (!this.activePlayer || !this.activePlayer.available) {
+      if (!this.selectedPlayerId || !this.selectedPlayer.available) {
         // prefer last selected player
-        const lastPlayerId = localStorage.getItem('activePlayerId')
+        const lastPlayerId = localStorage.getItem('selectedPlayerId')
         if (
           lastPlayerId &&
-          this.players[lastPlayerId] &&
-          this.players[lastPlayerId].available
+          this.getPlayer(lastPlayerId) &&
+          this.getPlayer(lastPlayerId).available
         ) {
-          this.switchPlayer(lastPlayerId)
+          this.switchSelectedPlayer(lastPlayerId)
         } else {
           // prefer the first playing player
-          for (const playerId in this.players) {
+          for (const player of this.getPlayers) {
             if (
-              this.players[playerId].state === 'playing' &&
-              this.players[playerId].available
+              player.state === 'playing' &&
+              player.available
             ) {
-              this.switchPlayer(playerId)
+              this.switchSelectedPlayer(player.player_id)
               break
             }
           }
           // fallback to just the first player
-          if (!this.activePlayer || !this.activePlayer.enabled) {
-            for (const playerId in this.players) {
-              if (this.players[playerId].available) {
-                this.switchPlayer(playerId)
+          if (!this.selectedPlayerId || !this.selectedPlayerId.enabled) {
+            for (const player of this.getPlayers) {
+              if (player.available) {
+                this.switchSelectedPlayer(player.player_id)
                 break
               }
             }
           }
         }
-      }
-    }
-  },
-  computed: {
-    activePlayer () {
-      if (!this.activePlayerId) {
-        return null
-      } else {
-        return this.players[this.activePlayerId]
       }
     }
   }
@@ -309,7 +306,8 @@ const server = new Vue({
 export default {
   server,
   // we can add objects to the Vue prototype in the install() hook:
-  install (Vue, options) {
+  install (vue, store) {
+    server.$store = store
     Vue.prototype.$server = server
   }
 }

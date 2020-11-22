@@ -28,7 +28,7 @@
   "sort_date"       : "Sort by date",
   "sort_default"    : "Default sorting",
   "items"           : "item(s)",
-  "conf"            : {
+  "config"            : {
     "enabled"                          : "Enabled",
     "base"                             : "Generic settings",
     "player_providers"                 : "Player providers",
@@ -68,14 +68,14 @@
     "server": "Server address",
     "username": "Username",
     "password": "Password",
-    "save_creds": "Remember my credentials on this browser.",
+    "save_creds": "Keep me logged in.",
     "login": "Login",
     "reset_form": "reset form",
     "server_empty": "The server address can not be empty.",
     "username_empty": "The username can not be empty.",
     "password_empty": "The password can not be empty.",
     "login_failed": "Could not login, please verify the credentials and that the server is available.",
-    "scheme_missing": "Server address must start with http:// or https://",
+    "no_scheme": "Provide only the name/ip to the server, so without http:// or https://",
     "logoff": "Logoff"
   }
 }
