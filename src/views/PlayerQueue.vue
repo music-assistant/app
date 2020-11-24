@@ -69,7 +69,7 @@
             @click="
               sendQueueCommand(
                 'repeat_enabled',
-                !getSelectedPlayerQueue.repeat_enabled
+                { enable_repeat: !getSelectedPlayerQueue.repeat_enabled }
               )
             "
           >
@@ -90,7 +90,7 @@
             @click="
               sendQueueCommand(
                 'shuffle_enabled',
-                !getSelectedPlayerQueue.shuffle_enabled
+                { enable_shuffle: !getSelectedPlayerQueue.shuffle_enabled }
               )
             "
           >
@@ -125,7 +125,7 @@
       <v-card>
         <v-subheader class="title">{{ selectedItem.name }}</v-subheader>
         <v-list>
-          <v-list-item @click="sendQueueCommand('index',selectedItem.queue_item_id)">
+          <v-list-item @click="sendQueueCommand('play_index/' + selectedItem.queue_item_id)">
             <v-list-item-icon>
               <v-icon v-text="'play_circle_outline'" />
             </v-list-item-icon>
@@ -135,7 +135,7 @@
               />
             </v-list-item-content>
           </v-list-item>
-          <v-list-item @click="sendQueueCommand('next',selectedItem.queue_item_id)">
+          <v-list-item @click="sendQueueCommand('move', { queue_item_id: selectedItem.queue_item_id, pos_shift: 0 })">
             <v-list-item-icon>
               <v-icon v-text="'queue_play_next'" />
             </v-list-item-icon>
@@ -145,7 +145,7 @@
               />
             </v-list-item-content>
           </v-list-item>
-          <v-list-item @click="sendQueueCommand('move_up',selectedItem.queue_item_id)">
+          <v-list-item @click="sendQueueCommand('move', { queue_item_id: selectedItem.queue_item_id, pos_shift: -1 })">
             <v-list-item-icon>
               <v-icon v-text="'arrow_upward'" />
             </v-list-item-icon>
@@ -155,7 +155,7 @@
               />
             </v-list-item-content>
           </v-list-item>
-          <v-list-item @click="sendQueueCommand('move_down',selectedItem.queue_item_id)">
+          <v-list-item @click="sendQueueCommand('move', { queue_item_id: selectedItem.queue_item_id, pos_shift: 1 })">
             <v-list-item-icon>
               <v-icon v-text="'arrow_downward'" />
             </v-list-item-icon>
@@ -190,12 +190,16 @@ export default Vue.extend({
     }
   },
   watch: {
-    getSelectedPlayerQueue: function (val) {
+    getSelectedPlayerId: function (val) {
+      this.getQueueItems()
+    },
+    curQueueItemId: function (val) {
+      console.log('curQueueItem', this.curQueueItem)
       this.getQueueItems()
     }
   },
   computed: {
-    ...mapGetters(['getSelectedPlayerQueue']),
+    ...mapGetters(['getSelectedPlayerId', 'getSelectedPlayerQueue']),
     next_items () {
       if (this.getSelectedPlayerQueue) {
         return this.items.slice(this.getSelectedPlayerQueue.cur_index)
@@ -205,12 +209,18 @@ export default Vue.extend({
       if (this.getSelectedPlayerQueue && this.selectedPlayer) {
         return this.items.slice(0, this.getSelectedPlayerQueue.cur_index)
       } else return []
+    },
+    curQueueItemId () {
+      if (this.getSelectedPlayerQueue && this.getSelectedPlayerQueue.cur_item) {
+        return this.getSelectedPlayerQueue.cur_item.queue_item_id
+      }
+      return null
     }
   },
   created () {
     this.$store.state.windowTitle = this.$t('queue')
-    this.$server.$on('queue items updated', this.getQueueItems)
     this.getQueueItems()
+    this.$server.$on('queue items updated', this.getQueueItems)
   },
   methods: {
     itemClicked (item) {
@@ -225,9 +235,8 @@ export default Vue.extend({
       }.bind(this))
     },
     sendQueueCommand (cmd, cmd_args = null) {
-      const queueId = this.$server.players[this.$store.selectedPlayerId].active_queue
-      const endpoint = 'players/' + queueId + '/queue/' + cmd
-      this.$server.putData(endpoint, cmd_args)
+      const endpoint = `players/${this.getSelectedPlayerQueue.queue_id}/queue/cmd/${cmd}`
+      this.$server.sendWsCommand(endpoint, cmd_args)
     }
   }
 })

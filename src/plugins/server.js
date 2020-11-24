@@ -105,6 +105,7 @@ const server = new Vue({
       if (typeof (cbFunc) === 'function') {
         this.wsQueueCallbacks[this.wsQueueId] = cbFunc
       }
+      console.log(command)
       this._ws.send(
         JSON.stringify({
           command: command,
@@ -215,6 +216,7 @@ const server = new Vue({
         this.$store.commit('commitPlayerQueueTime', msg.data)
       } else if (msg.event === 'queue updated') {
         this.$store.commit('commitPlayerQueue', msg.data)
+        console.log(msg)
       } else if (msg.event === 'config changed') {
         // simply request latest config when we receive event that it changed
         this.sendWsCommand('config')
