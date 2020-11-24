@@ -94,11 +94,13 @@ export default {
       // Login to local server with username and password
       // For now, we only support connecting to the server hosted on same location as the web app
       // this will be changed to support secure remote connections through a broker service
-      let serverAddress = window.location
-      serverAddress = serverAddress.replace('8080', '8095') // dev
+      let serverAddress = window.location.href
+      serverAddress = serverAddress.replace(':8080', ':8095') // dev
+      serverAddress = serverAddress.split('#')[0] // strip off router path
       if (!serverAddress.endsWith('/')) {
         serverAddress = serverAddress + '/'
       }
+
       // perform login
       const endpoint = serverAddress + 'login'
       const formData = new FormData()
