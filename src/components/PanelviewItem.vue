@@ -11,7 +11,7 @@
     @contextmenu.prevent
     v-longpress="menuClick"
   >
-    <MediaItemThumb :item="item" :size="thumbWidth"/>
+    <MediaItemThumb :item="item" :key="item.item_id" :size="thumbWidth"/>
     <div v-if="isHiRes" style="position:absolute;margin-left:5px;margin-top:-20px;height:30px;background-color: white;border-radius: 3px;">
     <v-tooltip bottom>
           <template v-slot:activator="{ on }">

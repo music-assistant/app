@@ -1,5 +1,5 @@
 <template>
-  <img :src="imgData" />
+  <v-img :src="imgData" />
 </template>
 
 <script>

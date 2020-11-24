@@ -95,9 +95,9 @@ const server = new Vue({
 
     sendWsCommand (command, data = null, cbFunc = null) {
       // emit a command to the server through websocket connection
-      if (!this._ws) {
+      if (!this.connected) {
         setTimeout(() => {
-          this.sendWsCommand(command, data)
+          this.sendWsCommand(command, data, cbFunc)
         }, 1000)
         return
       }
@@ -133,7 +133,12 @@ const server = new Vue({
         }, 10000)
       }
       // send authentication request
-      this.sendWsCommand('auth', this.tokenInfo.token)
+      this._ws.send(
+        JSON.stringify({
+          command: 'auth',
+          data: this.tokenInfo.token
+        })
+      )
     },
 
     async _onWsMessage (e) {

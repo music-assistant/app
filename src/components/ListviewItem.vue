@@ -8,7 +8,7 @@
       v-longpress="menuClick"
     >
       <v-list-item-avatar tile color="grey" v-if="!hideavatar">
-        <MediaItemThumb :item="item" :size="80" style="border: 1px solid rgba(0,0,0,.22);" />
+        <MediaItemThumb :item="item" :key="item.item_id" :size="80" style="border: 1px solid rgba(0,0,0,.22);" />
       </v-list-item-avatar>
 
       <v-list-item-content>
