@@ -194,7 +194,6 @@ export default Vue.extend({
       this.getQueueItems()
     },
     curQueueItemId: function (val) {
-      console.log('curQueueItem', this.curQueueItem)
       this.getQueueItems()
     }
   },
