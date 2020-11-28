@@ -53,7 +53,7 @@ const getters = {
   },
 
   getTrack: (state) => (itemId, provider) => {
-    const filteredItems = state.tracks.filter(item => item.item_id === itemId && item.provider === provider)
+    const filteredItems = state.tracks.filter(item => (item.item_id === itemId && item.provider === provider))
     if (filteredItems.length > 0) {
       return { ...filteredItems[0] }
     }
@@ -91,7 +91,7 @@ const getters = {
   },
 
   getArtist: (state) => (itemId, provider) => {
-    const filteredItems = state.artists.filter(item => item.item_id === itemId)
+    const filteredItems = state.artists.filter(item => (item.item_id === itemId && item.provider === provider))
     if (filteredItems.length > 0) {
       return { ...filteredItems[0] }
     }

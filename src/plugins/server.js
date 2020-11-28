@@ -211,6 +211,12 @@ const server = new Vue({
         this.$store.commit('commitArtist', msg.data)
       } else if (msg.event === 'album added') {
         this.$store.commit('commitAlbum', msg.data)
+      } else if (msg.event === 'track added') {
+        this.$store.commit('commitTrack', msg.data)
+      } else if (msg.event === 'playlist added') {
+        this.$store.commit('commitPlaylist', msg.data)
+      } else if (msg.event === 'radio added') {
+        this.$store.commit('commitRadio', msg.data)
       } else if (msg.event === 'queue time updated') {
         this.$store.commit('commitPlayerQueueTime', msg.data)
       } else if (msg.event === 'queue updated') {
@@ -229,7 +235,7 @@ const server = new Vue({
       // Result received from server
       if (msg.result === 'library/tracks') {
         this.$store.commit('commitTracks', msg.data)
-      } else if (msg.result.startsWith('tracks/' && !msg.result.includes('versions'))) {
+      } else if (msg.result.startsWith('tracks/') && !msg.result.includes('versions')) {
         this.$store.commit('commitTrack', msg.data)
       } else if (msg.result === 'library/artists') {
         this.$store.commit('commitArtists', msg.data)

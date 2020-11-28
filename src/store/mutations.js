@@ -42,6 +42,15 @@ const mutations = {
     )
     items.push(item)
     state.tracks = items
+    // cleanup provider objects once we receive a (full) database version
+    if (item.provider === 'database') {
+      for (const prov of item.provider_ids) {
+        const items = state.tracks.filter(
+          (i) => !(i.item_id === prov.item_id && i.provider === prov.provider)
+        )
+        state.tracks = items
+      }
+    }
   },
   commitArtists (state, items) {
     state.artists = items
@@ -52,6 +61,15 @@ const mutations = {
     )
     items.push(item)
     state.artists = items
+    // cleanup provider objects once we receive a (full) database version
+    if (item.provider === 'database') {
+      for (const prov of item.provider_ids) {
+        const items = state.artists.filter(
+          (i) => !(i.item_id === prov.item_id && i.provider === prov.provider)
+        )
+        state.artists = items
+      }
+    }
   },
   commitAlbums (state, items) {
     state.albums = items
@@ -62,6 +80,15 @@ const mutations = {
     )
     items.push(item)
     state.albums = items
+    // cleanup provider objects once we receive a (full) database version
+    if (item.provider === 'database') {
+      for (const prov of item.provider_ids) {
+        const items = state.albums.filter(
+          (i) => !(i.item_id === prov.item_id && i.provider === prov.provider)
+        )
+        state.albums = items
+      }
+    }
   },
   commitPlaylists (state, items) {
     state.playlists = items
