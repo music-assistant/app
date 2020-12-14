@@ -1,47 +1,47 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "874c8eb6c3d960baa546",
+    "revision": "beda036452355b42a94f",
     "url": "css/app.0a4fbe65.css"
   },
   {
-    "revision": "b95d08f55d73d1d8f7a6",
+    "revision": "db1578eeedf20e1fe1f1",
     "url": "css/browse~config~itemdetails.5e4953d2.css"
   },
   {
-    "revision": "fd1309179196e63bc738",
+    "revision": "2c0b94b0f7cc9db23110",
     "url": "css/browse~itemdetails.100d2ddf.css"
   },
   {
-    "revision": "42d412add9f844ddaf26",
-    "url": "css/chunk-vendors.305c35cd.css"
+    "revision": "1b1c4ec7aac44a4a5d4a",
+    "url": "css/chunk-vendors.184746a3.css"
   },
   {
-    "revision": "a78fd06c55d8ae0ea7b8",
+    "revision": "9a645b76c9ea1d3335e0",
     "url": "css/config.559607c5.css"
   },
   {
-    "revision": "55aac9726324f5f8939d",
+    "revision": "645b69f867417bf5f6c8",
     "url": "css/itemdetails.b90beccf.css"
   },
   {
-    "revision": "7310d2663b064543c449",
-    "url": "css/itemdetails~playerqueue~search.133d2876.css"
+    "revision": "3511fbe1107c50322ec2",
+    "url": "css/itemdetails~playerqueue~search.79b77aa9.css"
   },
   {
-    "revision": "0509ab09c1b0d2200a4135803c91d6ce",
-    "url": "fonts/MaterialIcons-Regular.0509ab09.woff2"
+    "revision": "2a61b00fcc9b1afbf99be145777b1b72",
+    "url": "fonts/MaterialIcons-Regular.2a61b00f.eot"
   },
   {
-    "revision": "29b882f018fa6fe75fd338aaae6235b8",
-    "url": "fonts/MaterialIcons-Regular.29b882f0.woff"
+    "revision": "51cf1d641ae503ece727e7d84b182524",
+    "url": "fonts/MaterialIcons-Regular.51cf1d64.ttf"
   },
   {
-    "revision": "96c476804d7a788cc1c05351b287ee41",
-    "url": "fonts/MaterialIcons-Regular.96c47680.eot"
+    "revision": "703cf8f274fbb265d49c6262825780e1",
+    "url": "fonts/MaterialIcons-Regular.703cf8f2.woff2"
   },
   {
-    "revision": "da4ea5cdfca6b3baab285741f5ccb59f",
-    "url": "fonts/MaterialIcons-Regular.da4ea5cd.ttf"
+    "revision": "84a37de85c17f186652a179b1145392f",
+    "url": "fonts/MaterialIcons-Regular.84a37de8.woff"
   },
   {
     "revision": "313a65630d341645c13e4f2a0364381d",
@@ -168,52 +168,52 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "img/web.798ba28f.png"
   },
   {
-    "revision": "ec881e9d6bc3c5c73e7a04ba71e1d694",
+    "revision": "e894d90e75ed738d4cb04197e1cfddd1",
     "url": "index.html"
   },
   {
-    "revision": "874c8eb6c3d960baa546",
-    "url": "js/app.99c9af53.js"
+    "revision": "beda036452355b42a94f",
+    "url": "js/app.4146ddd7.js"
   },
   {
-    "revision": "ac76f21db65ca973b9e4",
-    "url": "js/browse.23029605.js"
+    "revision": "be60f220c9ade0ca5b67",
+    "url": "js/browse.6599df1d.js"
   },
   {
-    "revision": "b95d08f55d73d1d8f7a6",
-    "url": "js/browse~config~itemdetails.bf351d9e.js"
+    "revision": "db1578eeedf20e1fe1f1",
+    "url": "js/browse~config~itemdetails.d013b7c7.js"
   },
   {
-    "revision": "fd1309179196e63bc738",
-    "url": "js/browse~itemdetails.bf750e67.js"
+    "revision": "2c0b94b0f7cc9db23110",
+    "url": "js/browse~itemdetails.c055e550.js"
   },
   {
-    "revision": "42d412add9f844ddaf26",
-    "url": "js/chunk-vendors.460c57bb.js"
+    "revision": "1b1c4ec7aac44a4a5d4a",
+    "url": "js/chunk-vendors.11220699.js"
   },
   {
-    "revision": "a78fd06c55d8ae0ea7b8",
-    "url": "js/config.fb845945.js"
+    "revision": "9a645b76c9ea1d3335e0",
+    "url": "js/config.83eecf4f.js"
   },
   {
-    "revision": "74afa7dab7f2715d3409",
-    "url": "js/home.60917d53.js"
+    "revision": "40ea1e063762851c5ae1",
+    "url": "js/home.1083e741.js"
   },
   {
-    "revision": "55aac9726324f5f8939d",
-    "url": "js/itemdetails.f6133064.js"
+    "revision": "645b69f867417bf5f6c8",
+    "url": "js/itemdetails.900fe76c.js"
   },
   {
-    "revision": "7310d2663b064543c449",
-    "url": "js/itemdetails~playerqueue~search.f97b5cc0.js"
+    "revision": "3511fbe1107c50322ec2",
+    "url": "js/itemdetails~playerqueue~search.aae2ca9b.js"
   },
   {
-    "revision": "ec6e6340a91b66441971",
-    "url": "js/playerqueue.ce1a3100.js"
+    "revision": "fe1bb08edf9968e9265b",
+    "url": "js/playerqueue.f8986f75.js"
   },
   {
-    "revision": "f85b2fa8ba0de3791bed",
-    "url": "js/search.714eb4f6.js"
+    "revision": "49a1399bc0613255876a",
+    "url": "js/search.87e370d7.js"
   },
   {
     "revision": "c93d318ec22138832730289be28caa77",
