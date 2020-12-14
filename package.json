@@ -34,7 +34,7 @@
     "vue-i18n": "^8.22.2",
     "vue-loading-overlay": "^3.4.2",
     "vue-observe-visibility": "^0.4.6",
-    "vue-router": "^3.4.3",
+    "vue-router": "^3.4.9",
     "vue-virtual-scroller": "^1.0.10",
     "vuejs-logger": "1.5.4",
     "vuetify": "^2.3.21",
