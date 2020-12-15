@@ -36,7 +36,7 @@
     "vue-observe-visibility": "^0.4.6",
     "vue-router": "^3.4.9",
     "vue-virtual-scroller": "^1.0.10",
-    "vuejs-logger": "1.5.4",
+    "vuejs-logger": "1.5.5",
     "vuetify": "^2.3.21",
     "vuex": "^3.4.0"
   },
