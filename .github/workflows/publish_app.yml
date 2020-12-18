@@ -27,5 +27,5 @@ jobs:
         git config user.name "github-actions[bot]"
         git add -A build
         git commit -m "publish latest app version"
-        git push
+        git push -f
   
