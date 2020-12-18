@@ -25,7 +25,7 @@
     "i18n:report": "vue-cli-service i18n:report --src './src/**/*.?(js|vue)' --locales './src/locales/**/*.json'"
   },
   "dependencies": {
-    "@babel/polyfill": "^7.11.5",
+    "@babel/polyfill": "^7.12.1",
     "core-js": "^3.8.1",
     "oboe": "^2.1.5",
     "register-service-worker": "^1.7.2",
@@ -60,7 +60,7 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^5.0.0",
-    "eslint-plugin-vue": "^6.2.2",
+    "eslint-plugin-vue": "^7.3.0",
     "lint-staged": "^10.5.3",
     "material-design-icons-iconfont": "^6.1.0",
     "sass": "^1.29.0",
@@ -68,7 +68,7 @@
     "vue-cli-plugin-axios": "0.0.4",
     "vue-cli-plugin-cordova": "~2.4.1",
     "vue-cli-plugin-i18n": "^1.0.1",
-    "vue-cli-plugin-vuetify": "~2.0.7",
+    "vue-cli-plugin-vuetify": "~2.0.8",
     "vue-template-compiler": "^2.6.12",
     "vuetify-loader": "^1.4.3"
   },
