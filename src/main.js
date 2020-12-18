@@ -10,7 +10,6 @@ import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 import vuetify from './plugins/vuetify'
 import server from './plugins/server'
 import mediaPlayer from './plugins/media_player'
-import '@babel/polyfill'
 import VueLogger from 'vuejs-logger'
 import store from './store'
 

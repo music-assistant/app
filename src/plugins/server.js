@@ -263,7 +263,6 @@ const server = new Vue({
         this.$store.commit('commitProviderIcons', msg.data)
       } else if (msg.result === 'config') {
         this.$store.state.config = msg.data
-        console.log(msg.data)
       } else if (msg.id in this.wsQueueCallbacks) {
         // reponse to custom request with callback
         const callback = this.wsQueueCallbacks[msg.id]
