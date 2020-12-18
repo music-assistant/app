@@ -1,9 +1,8 @@
 <template>
   <v-card
-    light
     :min-height="thumbHeight"
     :min-width="thumbWidth"
-    :max-width="thumbWidth*1.6"
+    :max-width="thumbWidth*1.4"
     hover
     outlined
     @click.left="onclickHandler ? onclickHandler(item) : itemClicked(item)"

@@ -17,7 +17,6 @@
       :v-model="activeTab"
       grow
       background-color="rgba(0,0,0,.75)"
-      dark
     >
       <v-tab
         ripple

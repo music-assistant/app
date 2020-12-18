@@ -1,10 +1,10 @@
 <template>
-  <v-card>
-    <v-list>
+  <v-card style="position:fixed;width:300px;right:20px;bottom:20px">
+    <v-list style="overflow: hidden;">
     <v-list-item style="height:50px;padding-bottom:5;">
       <v-list-item-avatar tile style="margin-left:-10px;">
         <v-icon large>{{
-          player.is_group ? "speaker_group" : "speaker"
+          player.is_group_player ? "speaker_group" : "speaker"
         }}</v-icon>
       </v-list-item-avatar>
       <v-list-item-content style="margin-left:-15px;">
@@ -36,10 +36,11 @@
         >
           <v-icon>power_settings_new</v-icon>
         </v-btn>
-        <span style="margin-left:10px">{{ childPlayer.name }}</span>
+        <span class="left" style="margin-left:10px">{{ childPlayer.name }}</span>
         <div
           style="margin-top:-8px;margin-left:15px;margin-right:15px;height:35px;"
         >
+        <div class="caption" style="position:absolute;right:10px;width:35px;margin-top:-18px;text-align: center">{{ childPlayer.volume_level }}</div>
           <v-slider
             lazy
             :disabled="!childPlayer.powered"
@@ -70,14 +71,17 @@ export default Vue.extend({
   computed: {
     ...mapGetters(['getAvailablePlayers', 'getPlayer']),
     volumePlayers () {
-      var items = [this.player]
+      var items = []
       for (const groupChildId of this.player.group_childs) {
         const volumeChild = this.getPlayer(groupChildId)
         if (volumeChild && volumeChild.available) {
           items.push(volumeChild)
         }
       }
-      return items
+      var finalItems = [this.player]
+      items.sort((a, b) => (a.name.toUpperCase() > b.name.toUpperCase()) ? 1 : -1)
+      finalItems.push(...items)
+      return finalItems
     }
   },
   mounted () { },

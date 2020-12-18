@@ -1,7 +1,7 @@
 <template>
   <section>
     <InfoHeader :itemDetails="itemDetails" />
-    <v-tabs dark show-arrows v-model="activeTab" grow hide-slider background-color="rgba(0,0,0,.45)">
+    <v-tabs show-arrows v-model="activeTab" grow background-color="rgba(255,255,255,.01)">
       <v-tab v-for="tab in tabs" :key="tab.label">
         {{ $t(tab.label) }}</v-tab
       >

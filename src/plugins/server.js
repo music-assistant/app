@@ -89,6 +89,7 @@ const server = new Vue({
       this._ws.onmessage = this._onWsMessage
       this._ws.onerror = (e) => {
         Vue.$log.error('Error in serverconnection', e)
+        this.$store.dispatch('dispatchNotification', { content: e.message, type: 'error' })
         this._ws.close()
       }
     },
@@ -169,7 +170,6 @@ const server = new Vue({
       this.connected = true
       this.dispatchHideLoginForm()
       // request all base listings
-      this.sendWsCommand('info')
       this.sendWsCommand('players')
       this.sendWsCommand('players/queues')
       this.sendWsCommand('library/tracks')
@@ -192,6 +192,7 @@ const server = new Vue({
       } else {
         // simply log it for now
         Vue.$log.error(msg)
+        this.$store.dispatch('dispatchNotification', { content: msg.error, type: 'error' })
       }
     },
 
@@ -260,11 +261,9 @@ const server = new Vue({
         this.$store.commit('commitPlayerQueues', msg.data)
       } else if (msg.result === 'images/provider-icons') {
         this.$store.commit('commitProviderIcons', msg.data)
-      } else if (msg.result === 'info') {
-        this.serverInfo = msg.data
-        localStorage.setItem('serverInfo', JSON.stringify(this.serverInfo))
       } else if (msg.result === 'config') {
         this.$store.state.config = msg.data
+        console.log(msg.data)
       } else if (msg.id in this.wsQueueCallbacks) {
         // reponse to custom request with callback
         const callback = this.wsQueueCallbacks[msg.id]

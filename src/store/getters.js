@@ -1,4 +1,9 @@
 const getters = {
+
+  notification: (state) => state.notification,
+
+  showPlayersMenu: (state) => state.showPlayersMenu,
+
   getPlayers: (state) => state.players,
 
   getPlayer: (state) => (playerId) => {

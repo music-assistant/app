@@ -16,9 +16,8 @@ export default Vue.extend({
     }
   },
   created () {
-    // TODO: should we cache results to browser cache ?
     const url = this.getImageUrl(this.item)
-    if (url && !this.size) {
+    if (url && (!this.size || this.size > 100)) {
       // simply use the fullsize url
       this.imgData = url
     } else if (url && this.size) {
@@ -40,7 +39,7 @@ export default Vue.extend({
       if (mediaItem.artist && mediaItem.artist.metadata && mediaItem.artist.metadata.image) return mediaItem.artist.metadata.image
     },
     getImageThumb (item = null, url = null) {
-      // get image(thumb) for mediaItem
+      // get image(thumb) for mediaItem from server
       const data = {
         url: url,
         item: item,

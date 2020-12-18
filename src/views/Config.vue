@@ -61,7 +61,7 @@
               <v-list-item-content>
                 <v-list-item-title v-if="conf_value['__name__']">{{ conf_value['__name__']['label'] }}</v-list-item-title>
                 <v-list-item-title v-else-if="configKey == 'player_settings'"><b>{{  getPlayer(conf_key).name }}</b></v-list-item-title>
-                <v-list-item-title v-else>{{ conf_key }}</v-list-item-title>
+                <v-list-item-title v-else style="text-transform: capitalize;">{{ conf_key }}</v-list-item-title>
                 <v-list-item-subtitle v-if="configKey == 'player_settings'">
                   <span v-for="(value, name) in getPlayer(conf_key).device_info" :key="name">
                     <b><span v-if="value">{{ name + ': '  }}</span></b><span v-if="value">{{ value + '  '  }}</span>
@@ -84,8 +84,8 @@
                 v-if="conf_item_value['entry_type'] == 'boolean'"
                 v-model="conf_item_value['value']"
                 :placeholder="conf_item_value['default_value']"
-                :label="conf_item_value['label']"
-                :hint="conf_item_value['description']"
+                :label="$t(conf_item_value['label'])"
+                :hint="$t(conf_item_value['description'])"
                 :disabled="getDisabledState(conf_value, conf_item_value)"
                 @change="saveConfig(configKey, conf_key, conf_item_key, conf_item_value['value'])"
               ></v-switch>
@@ -99,8 +99,8 @@
             "
                 v-model="conf_item_value['value']"
                 :placeholder="conf_item_value['default_value'] ? conf_item_value['default_value'].toString() : ''"
-                :label="conf_item_value['label']"
-                :hint="conf_item_value['description']"
+                :label="$t(conf_item_value['label'])"
+                :hint="$t(conf_item_value['description'])"
                 :disabled="getDisabledState(conf_value, conf_item_value)"
                 @change="saveConfig(configKey, conf_key, conf_item_key, conf_item_value['value'])"
                 filled
@@ -110,8 +110,8 @@
                 v-if="conf_item_value['entry_type'] == 'password'"
                 v-model="conf_item_value['value']"
                 :placeholder="conf_item_value['default_value']"
-                :label="conf_item_value['label']"
-                :hint="conf_item_value['description']"
+                :label="$t(conf_item_value['label'])"
+                :hint="$t(conf_item_value['description'])"
                 :disabled="getDisabledState(conf_value, conf_item_value)"
                 type="password"
                 @change="saveConfig(configKey, conf_key, conf_item_key, conf_item_value['value'])"
@@ -129,8 +129,8 @@
                 v-model="conf_item_value['value']"
                 :items="conf_item_value['values']"
                 :placeholder="conf_item_value['default_value'] ? conf_item_value['default_value'].toString() : ''"
-                :label="conf_item_value['label']"
-                :hint="conf_item_value['description']"
+                :label="$t(conf_item_value['label'])"
+                :hint="$t(conf_item_value['description'])"
                 :disabled="getDisabledState(conf_value, conf_item_value)"
                 filled
                 @change="saveConfig(configKey, conf_key, conf_item_key, conf_item_value['value'])"
@@ -140,8 +140,8 @@
                 v-if="conf_item_value['range'].length"
                 :placeholder="conf_item_value['default_value'].toString()"
                 v-model="conf_item_value['value']"
-                :label="conf_item_value['label']"
-                :hint="conf_item_value['description']"
+                :label="$t(conf_item_value['label'])"
+                :hint="$t(conf_item_value['description'])"
                 :disabled="getDisabledState(conf_value, conf_item_value)"
                 @change="saveConfig(configKey, conf_key, conf_item_key, conf_item_value['value'])"
                 :min="conf_item_value['range'][0]"
@@ -212,9 +212,9 @@ export default {
     }
   },
   async created () {
-    this.$store.state.windowtitle = this.$t('settings')
+    this.$store.state.windowTitle = this.$t('settings')
     if (this.configKey) {
-      this.$store.state.windowtitle += ' | ' + this.$t('config.' + this.configKey)
+      this.$store.state.windowTitle += ' | ' + this.$t('config.' + this.configKey)
     }
   },
   methods: {

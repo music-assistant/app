@@ -8,7 +8,7 @@
       v-longpress="menuClick"
     >
       <v-list-item-avatar tile color="grey" v-if="!hideavatar">
-        <MediaItemThumb :item="item" :key="item.item_id" :size="80" style="border: 1px solid rgba(0,0,0,.22);" />
+        <MediaItemThumb :item="item" :key="item.item_id" :size="40" style="border: 1px solid rgba(0,0,0,.22);" />
       </v-list-item-avatar>
 
       <v-list-item-content>
@@ -62,7 +62,7 @@
       <v-list-item-action v-if="isHiRes">
         <v-tooltip bottom>
           <template v-slot:activator="{ on }">
-          <img :src="require('../assets/hires.png')" height="20" v-on="on" />
+          <img :src="require('../assets/hires.png')" height="20" v-on="on" :style="$vuetify.theme.dark ? 'filter: invert(100%);' : ''" />
           </template>
           <span>{{ isHiRes }}</span>
         </v-tooltip>

@@ -77,5 +77,6 @@
     "login_failed": "Could not login, please verify the credentials and that the server is available.",
     "no_scheme": "Provide only the name/ip to the server, so without http:// or https://",
     "logoff": "Logoff"
-  }
+  },
+  "dark_mode": "Donkere modus"
 }

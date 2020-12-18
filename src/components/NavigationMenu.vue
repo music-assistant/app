@@ -1,5 +1,5 @@
 <template>
-  <v-navigation-drawer dark app clipped temporary v-model="$store.state.showNavigationMenu">
+  <v-navigation-drawer app clipped temporary v-model="$store.state.showNavigationMenu">
     <v-list>
       <v-list-item v-for="item in items" :key="item.title" @click="$router.push(item.path)">
         <v-list-item-action>
@@ -16,6 +16,9 @@
         <v-list-item-content>
           <v-list-item-title>{{ this.$t('login.logoff') }}</v-list-item-title>
         </v-list-item-content>
+      </v-list-item>
+      <v-list-item>
+        <v-switch inset :label="$t('dark_mode')" v-model="$vuetify.theme.dark"/>
       </v-list-item>
       <v-btn icon v-on:click="$store.state.showNavigationMenu=!$store.state.showNavigationMenu" />
     </v-list>

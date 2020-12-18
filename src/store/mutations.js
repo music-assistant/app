@@ -1,6 +1,10 @@
 import Vue from 'vue'
 const mutations = {
 
+  commitNotification (state, payload) {
+    state.notification = payload
+  },
+
   commitPlayers (state, players) {
     state.players = players
   },

@@ -1,5 +1,5 @@
 <template>
-  <v-app-bar app flat dense dark :color="color">
+  <v-app-bar app :flat="this.$store.state.topBarTransparent" dense :color="color">
     <v-layout>
       <div class="body-1" v-if="!$store.state.topBarTransparent" style="position:fixed;width:100%;text-align:center;vertical-align:center;margin-top:11px;">{{ $store.state.windowTitle }}</div>
       <v-btn icon v-on:click="$store.state.showNavigationMenu=!$store.state.showNavigationMenu" style="margin-left:-13px">
@@ -29,7 +29,9 @@ export default Vue.extend({
     color () {
       if (this.$store.state.topBarTransparent) {
         return 'transparent'
-      } else return 'black'
+      } else if (this.$vuetify.theme.dark) {
+        return ''
+      } else return ''
     }
   },
   mounted () { },

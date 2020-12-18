@@ -2,12 +2,10 @@
   <section>
     <v-app-bar
       flat
-      light
       dense
       color="transparent"
-      style="margin-bottom:-8px;"
     >
-      <v-label light>{{ items.length + " " + $t("items") }}</v-label>
+      <v-label>{{ items.length + " " + $t("items") }}</v-label>
       <v-spacer></v-spacer>
       <v-menu left :close-on-content-click="false">
         <template v-slot:activator="{ on }">
@@ -91,7 +89,7 @@
               v-bind:item="item"
               :hideavatar="item.media_type == 'track' ? $store.state.isMobile : false"
               :hidetracknum="true"
-              :hideproviders="item.media_type in ['artist', 'album', 'track'] ? $store.state.isMobile : false"
+              :hideproviders="['artist', 'album', 'track'].includes(item.media_type) ? $store.state.isMobile : false"
               :hidelibrary="true"
               :hidemenu="item.media_type == 'track' ? $store.state.isMobile : false"
               :hideduration="item.media_type == 'radio'"

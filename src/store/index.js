@@ -9,6 +9,7 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
+    notification: { content: '' },
     windowTitle: 'Home',
     showNavigationMenu: false,
     showPlayersMenu: false,

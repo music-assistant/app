@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="visible" @input="$emit('input', $event)" max-width="500px">
+  <v-dialog v-model="visible" @input="$emit('input', $event)" max-width="500px" overlay-opacity="0.8">
     <v-card>
       <!-- normal contextmenu items -->
       <v-list v-if="playlists.length === 0">

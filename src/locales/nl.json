@@ -77,5 +77,6 @@
     "login_failed": "Kon niet inloggen, controleer of de server bereikbaar is en de inloggegevens juist zijn.",
     "no_scheme": "Type enkel de naam/ip van de server, dus zonder http:// of https://",
     "logoff": "Uitloggen"
-  }
+  },
+  "dark_mode": "Dark Mode"
 }

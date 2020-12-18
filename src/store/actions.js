@@ -9,6 +9,9 @@ const actions = {
   switchSelectedPlayer ({ commit }, playerId) {
     commit('commitSelectedPlayerId', playerId)
     localStorage.setItem('selectedPlayerId', playerId)
+  },
+  dispatchNotification ({ commit }, payload) {
+    commit('commitNotification', payload)
   }
 }
 export default actions

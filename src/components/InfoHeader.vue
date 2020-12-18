@@ -2,19 +2,17 @@
   <v-flex v-observe-visibility="visibilityChanged">
     <v-card
       tile
-      color="black"
-      class="white--text"
       :img="require('../assets/info_gradient.jpg')"
       style="margin-top:-60px;"
-      height="290"
+      :height="showFullInfo ? '110%' : '340'"
     >
       <v-img
-        class="white--text"
         width="100%"
-        height="360"
+        :height="showFullInfo ? '100%' : '340'"
         position="center top"
         :src="getFanart(itemDetails)"
-        gradient="to bottom, rgba(0,0,0,.90), rgba(0,0,0,.75)"
+        :gradient="$vuetify.theme.dark ? 'to bottom, rgba(0,0,0,.90), rgba(0,0,0,.75)' : 'to bottom, rgba(255,255,255,.90), rgba(255,255,255,.75)'"
+        @click="showFullInfo = !showFullInfo"
       >
         <div class="text-xs-center" style="height:40px;" id="whitespace_top" />
 
@@ -26,14 +24,13 @@
               :lazy-src="require('../assets/default_artist.png')"
               width="220px"
               height="220px"
-              style="border: 4px solid rgba(0,0,0,.33);border-radius: 6px;"
+              style="border: 3px solid rgba(0,0,0,.33);border-radius: 3px;"
             ></v-img>
           </v-flex>
 
           <v-flex>
             <!-- Main title -->
             <v-card-title
-              style="text-shadow: 1px 1px #000000;"
             >
               {{ itemDetails.name }}
             </v-card-title>
@@ -44,32 +41,30 @@
               <div
                 v-if="itemDetails.version"
                 class="caption"
-                style="color: white;"
               >
                 {{ itemDetails.version }}
               </div>
 
               <!-- item artists -->
               <div
-                class="title"
-                style="text-shadow: 1px 1px #000000;"
+                class="title accent--text"
                 v-if="itemDetails.artists"
               >
                 <v-icon
-                  color="#cccccc"
                   style="margin-left: -3px;margin-right:3px"
                   small
+                  color="primary"
                   >person</v-icon
                 >
                 <span
                   v-for="(artist, artistindex) in itemDetails.artists"
                   :key="artist.db_id"
                 >
-                  <a style="color: primary" v-on:click="artistClick(artist)">{{
+                  <a style="color: accent" v-on:click="artistClick(artist)">{{
                     artist.name
                   }}</a>
                   <span
-                    style="color: #cccccc"
+                    style="color: accent"
                     v-if="artistindex + 1 < itemDetails.artists.length"
                     :key="artistindex"
                     >{{ " / " }}</span
@@ -80,13 +75,12 @@
               <!-- album artist -->
               <div class="title" v-if="itemDetails.artist">
                 <v-icon
-                  color="#cccccc"
                   style="margin-left: -3px;margin-right:3px"
                   small
+                  color="primary"
                   >person</v-icon
                 >
                 <a
-                  style="color: primary"
                   v-on:click="artistClick(itemDetails.artist)"
                   >{{ itemDetails.artist.name }}</a
                 >
@@ -95,11 +89,10 @@
               <!-- playlist owner -->
               <div
                 class="title"
-                style="text-shadow: 1px 1px #000000;"
                 v-if="itemDetails.owner"
               >
                 <v-icon
-                  color="#cccccc"
+                  color="primary"
                   style="margin-left: -3px;margin-right:3px"
                   small
                   >person</v-icon
@@ -109,16 +102,15 @@
 
               <div
                 v-if="itemDetails.album"
-                style="color:#ffffff;text-shadow: 1px 1px #000000;"
               >
                 <v-icon
-                  color="#cccccc"
+                  color="primary"
                   style="margin-left: -3px;margin-right:3px"
                   small
                   >album</v-icon
                 >
                 <a
-                  style="color:#ffffff"
+                  style="color:secondary"
                   v-on:click="albumClick(itemDetails.album)"
                   >{{ itemDetails.album.name }}</a
                 >
@@ -132,7 +124,7 @@
                 tile
                 @click="$server.$emit('showPlayMenu', itemDetails)"
               >
-                <v-icon left dark>play_circle_filled</v-icon>
+                <v-icon left>play_circle_filled</v-icon>
                 {{ $t("play") }}
               </v-btn>
               <v-btn
@@ -145,7 +137,7 @@
                 tile
                 @click="toggleLibrary(itemDetails)"
               >
-                <v-icon left dark>favorite_border</v-icon>
+                <v-icon left>favorite_border</v-icon>
                 {{ $t("add_library") }}
               </v-btn>
               <v-btn
@@ -158,20 +150,19 @@
                 tile
                 @click="toggleLibrary(itemDetails)"
               >
-                <v-icon left dark>favorite</v-icon>
+                <v-icon left>favorite</v-icon>
                 {{ $t("remove_library") }}
               </v-btn>
             </div>
 
             <!-- Description/metadata -->
-            <v-card-subtitle class="body-2">
-              <div class="justify-left" style="text-shadow: 1px 1px #000000;">
-                <ReadMore
-                  :text="getDescription()"
-                  :max-chars="$store.state.isMobile ? 140 : 260"
-                />
-              </div>
+            <v-card-subtitle class="body-2 justify-left">
+                <span v-if="showFullInfo" v-html="getDescription()" @click.stop="showFullInfo=false"/>
+                <span v-else v-html="truncateText(getDescription(), $store.state.isMobile ? 180 : 380)" @click.stop="showFullInfo=true"/>
             </v-card-subtitle>
+            <div class="justify-center" v-if="itemDetails && itemDetails.metadata.genres" style="position: absolute;margin-left:15px;margin-bottom:15px;">
+          <v-chip color="accent" style="margin-right:5px;margin-bottom:5px" small outlined v-for="tag of itemDetails.metadata.genres" :key="tag">{{ tag }}</v-chip>
+        </div>
           </v-flex>
           <!-- tech specs and provider icons -->
           <div style="margin-top:15px">
@@ -182,9 +173,6 @@
           </div>
         </v-layout>
       </v-img>
-      <!-- <div class="text-xs-center" v-if="itemDetails.tags" style="height:30px;margin-top:-8px;margin-left:15px;margin-right:15px;">
-        <v-chip small color="white" outlined v-for="tag of itemDetails.tags" :key="tag">{{ tag }}</v-chip>
-      </div> -->
     </v-card>
   </v-flex>
 </template>
@@ -192,18 +180,18 @@
 <script>
 import Vue from 'vue'
 import ProviderIcons from '@/components/ProviderIcons.vue'
-import ReadMore from '@/components/ReadMore.vue'
 import VueObserveVisibility from 'vue-observe-visibility'
 Vue.use(VueObserveVisibility)
 
 export default Vue.extend({
   components: {
-    ProviderIcons,
-    ReadMore
+    ProviderIcons
   },
   props: ['itemDetails'],
   data () {
-    return {}
+    return {
+      showFullInfo: false
+    }
   },
   mounted () { },
   created () {
@@ -221,6 +209,8 @@ export default Vue.extend({
         this.$store.state.windowTitle = val.name
       }
     }
+  },
+  computed: {
   },
   methods: {
     visibilityChanged (isVisible, entry) {
@@ -259,8 +249,14 @@ export default Vue.extend({
       }
       return desc
     },
+    truncateText (text, maxChars) {
+      var valContainer = text
+      if (text.length > maxChars) {
+        valContainer = valContainer.substring(0, maxChars) + '...'
+      }
+      return (valContainer)
+    },
     getQualityInfo () {
-
     },
     getUniqueProviders () {
       var keys = []

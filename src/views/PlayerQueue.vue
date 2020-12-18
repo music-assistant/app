@@ -205,7 +205,7 @@ export default Vue.extend({
       } else return []
     },
     previous_items () {
-      if (this.getSelectedPlayerQueue && this.selectedPlayer) {
+      if (this.getSelectedPlayerQueue && this.getSelectedPlayerId) {
         return this.items.slice(0, this.getSelectedPlayerQueue.cur_index)
       } else return []
     },
