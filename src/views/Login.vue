@@ -151,15 +151,20 @@ export default {
   methods: {
     discoverServers () {
       // discover Music Assistant servers on the network
-      // if we're running in the browser this is pretty limited as we can't do
-      // mdns/avahi discovery but the (first) local server on the network, reachable at http://musicassistant.local:8095
-      // will serve discovery info with a get request to the index.
-
+      // if we're running in the browser this is pretty limited as we can't do mdns/avahi discovery.
       // TODO: Implement avahi discovery for native clients.
+
+      // Support for frontend included in the server build
+      let serverAddress = window.location.href
+      serverAddress = serverAddress.split('#')[0] // strip off router path
+      if (!serverAddress.endsWith('/')) {
+        serverAddress = serverAddress + '/'
+      }
       axios
-        .get('http://musicassistant.local:8095')
+        .get(serverAddress + 'info')
         .then(response => {
           // server running at this endpoint
+          response.data.address = serverAddress.replace('http', 'ws') + 'ws'
           this.servers = [response.data]
           // select discovered server
           if (!this.selectedServer) {
@@ -168,6 +173,10 @@ export default {
         })
         .catch(e => {
           Vue.$log.error('Server discovery failed', e)
+          this.$store.dispatch('dispatchNotification', {
+            content: 'Server discovery failed',
+            type: 'error'
+          })
           this.servers = []
           // TODO: Use remote connect feature here
         })
