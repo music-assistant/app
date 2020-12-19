@@ -4,7 +4,7 @@ on:
     branches: [master]
 
 env:
-  NODE_VERSION: '10.x'                # set this to the node version to use
+  NODE_VERSION: '14.9'                # set this to the node version to use
 
 jobs:
   build-and-deploy:
