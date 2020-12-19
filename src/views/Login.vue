@@ -130,8 +130,8 @@
 </template>
 
 <script>
-// import axios from 'axios'
-// import Vue from 'vue'
+import axios from 'axios'
+import Vue from 'vue'
 
 export default {
   props: {
@@ -152,26 +152,25 @@ export default {
     discoverServers () {
       // discover Music Assistant servers on the network
       // if we're running in the browser this is pretty limited as we can't do
-      // mdns/avahi discovery but the (first) local server on the network, reachable at http://musicassistant:8095
+      // mdns/avahi discovery but the (first) local server on the network, reachable at http://musicassistant.local:8095
       // will serve discovery info with a get request to the index.
-      this.servers.push({ id: 'test', address: 'ws://musicassistant.local:8095/ws', hostname: 'musicassistant.local', ip_address: '192.168.1.1', port: 8095, version: '0.0.73', friendly_name: 'test-music-assistant', initialized: true })
 
       // TODO: Implement avahi discovery for native clients.
-      // axios
-      //   .get('http://musicassistant.local:8095')
-      //   .then(response => {
-      //     // server running at this endpoint
-      //     this.servers = [response.data]
-      //     // select discovered server
-      //     if (!this.selectedServer) {
-      //       this.selectedServer = this.servers[0]
-      //     }
-      //   })
-      //   .catch(e => {
-      //     Vue.$log.error('Server discovery failed', e)
-      //     this.servers = []
-      //     // TODO: Use remote connect feature here
-      //   })
+      axios
+        .get('http://musicassistant.local:8095')
+        .then(response => {
+          // server running at this endpoint
+          this.servers = [response.data]
+          // select discovered server
+          if (!this.selectedServer) {
+            this.selectedServer = this.servers[0]
+          }
+        })
+        .catch(e => {
+          Vue.$log.error('Server discovery failed', e)
+          this.servers = []
+          // TODO: Use remote connect feature here
+        })
     },
 
     async submitLogin () {
