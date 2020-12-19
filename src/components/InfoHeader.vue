@@ -12,7 +12,6 @@
         position="center top"
         :src="getFanart(itemDetails)"
         :gradient="$vuetify.theme.dark ? 'to bottom, rgba(0,0,0,.90), rgba(0,0,0,.75)' : 'to bottom, rgba(255,255,255,.90), rgba(255,255,255,.75)'"
-        @click="showFullInfo = !showFullInfo"
       >
         <div class="text-xs-center" style="height:40px;" id="whitespace_top" />
 
@@ -157,12 +156,15 @@
 
             <!-- Description/metadata -->
             <v-card-subtitle class="body-2 justify-left">
-                <span v-if="showFullInfo" v-html="getDescription()" @click.stop="showFullInfo=false"/>
-                <span v-else v-html="truncateText(getDescription(), $store.state.isMobile ? 180 : 380)" @click.stop="showFullInfo=true"/>
+                <span v-if="showFullInfo" v-html="getDescription()"/>
+                <span v-else v-html="truncateText(getDescription(), $store.state.isMobile ? 180 : 380)"/>
+                <v-icon v-if="showFullInfo" @click="showFullInfo = false">mdi-chevron-up</v-icon>
+                <v-icon v-else @click="showFullInfo = true">mdi-chevron-down</v-icon>
             </v-card-subtitle>
-            <div class="justify-center" v-if="itemDetails && itemDetails.metadata.genres" style="position: absolute;margin-left:15px;margin-bottom:15px;">
-          <v-chip color="accent" style="margin-right:5px;margin-bottom:5px" small outlined v-for="tag of itemDetails.metadata.genres" :key="tag">{{ tag }}</v-chip>
-        </div>
+            <!-- genres -->
+            <div class="justify-center" v-if="itemDetails && itemDetails.metadata.genres" style="margin-left:15px;">
+            <v-chip color="blue-grey lighten-1" style="margin-right:5px;margin-bottom:5px" small outlined v-for="tag of itemDetails.metadata.genres" :key="tag">{{ tag }}</v-chip>
+          </div>
           </v-flex>
           <!-- tech specs and provider icons -->
           <div style="margin-top:15px">

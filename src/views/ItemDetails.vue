@@ -42,7 +42,7 @@ export default {
   },
   created () {
     // request itemdetails from server
-    this.$server.sendWsCommand(`${this.media_type}/${this.provider}/${this.item_id}`, { refresh: true })
+    this.$server.sendWsCommand(`${this.media_type}/${this.provider}/${this.item_id}`)
 
     if (this.media_type === 'artists') {
       // artist details

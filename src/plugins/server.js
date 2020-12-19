@@ -185,10 +185,10 @@ const server = new Vue({
 
     async _onServerError (msg) {
       // Error received from server
-      if (msg.result === 'auth') {
+      if (msg.command === 'auth') {
         // login error
-        this._ws.close()
         this.dispatchShowLoginForm()
+        this._ws.close()
       } else {
         // simply log it for now
         Vue.$log.error(msg)
@@ -263,17 +263,17 @@ const server = new Vue({
         this.$store.commit('commitProviderIcons', msg.data)
       } else if (msg.result === 'config') {
         this.$store.state.config = msg.data
-      } else if (msg.id in this.wsQueueCallbacks) {
-        // reponse to custom request with callback
-        const callback = this.wsQueueCallbacks[msg.id]
-        delete this.wsQueueCallbacks[msg.id]
-        callback(msg.data)
       } else {
         // unknown result, simply emit it on the eventbus
         this.$emit(msg.result, msg.data)
       }
+      if (msg.id in this.wsQueueCallbacks) {
+        // reponse to custom request with callback
+        const callback = this.wsQueueCallbacks[msg.id]
+        delete this.wsQueueCallbacks[msg.id]
+        callback(msg.data)
+      }
     },
-
     selectPlayer () {
       // auto select new active player if we have none
       if (!this.selectedPlayerId || !this.selectedPlayer.available) {

@@ -123,6 +123,12 @@ export default Vue.extend({
           icon: 'add_circle_outline'
         })
       }
+      // refresh item
+      menuItems.push({
+        label: 'refresh_item',
+        action: 'refresh_item',
+        icon: 'refresh'
+      })
       this.menuItems = menuItems
       this.header = mediaItem.name
       this.subheader = ''
@@ -204,6 +210,13 @@ export default Vue.extend({
         // add/remove to/from library
         this.$server.toggleLibrary(this.curItem)
         this.visible = false
+      } else if (cmd === 'refresh_item') {
+        // refresh details for media item
+        const endpoint = `${this.curItem.media_type}s/${this.curItem.provider}/${this.curItem.item_id}`
+        this.$server.sendWsCommand(endpoint, { refresh: true, lazy: false }, function (res) {
+          this.curItem = res
+          this.visible = false
+        }.bind(this))
       } else {
         // assume play command
         this.$server.playMedia(this.curItem, cmd)
