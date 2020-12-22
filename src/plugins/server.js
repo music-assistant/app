@@ -66,7 +66,7 @@ const server = new Vue({
       }
     },
 
-    playerCommand (cmd, cmdOpt = '', playerId = null) {
+    playerCommand (cmd, cmdOpt = null, playerId = null) {
       if (!playerId) playerId = this.selectedPlayerId
       let endpoint = `players/${playerId}/cmd/${cmd}`
       if (cmdOpt) endpoint += '/' + cmdOpt

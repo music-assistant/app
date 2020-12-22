@@ -18,21 +18,13 @@
     <div v-for="childPlayer in volumePlayers" :key="childPlayer.player_id">
       <div
         class="body-2"
-        :style="
-          !childPlayer.powered
-            ? 'color:rgba(0,0,0,.38);'
-            : 'color:rgba(0,0,0,.54);'
-        "
+        :style="!childPlayer.powered ? 'color:grey;' : ''"
       >
         <v-btn
           icon
-          @click="togglePlayerPower(childPlayer.player_id)"
+          @click="$server.playerCommand('power_toggle', null, childPlayer.player_id)"
           style="margin-left:8px"
-          :style="
-            !childPlayer.powered
-              ? 'color:rgba(0,0,0,.38);'
-              : 'color:rgba(0,0,0,.54);'
-          "
+          :style="!childPlayer.powered ? 'color:grey;' : ''"
         >
           <v-icon>power_settings_new</v-icon>
         </v-btn>
@@ -47,9 +39,9 @@
             :value="Math.round(childPlayer.volume_level)"
             prepend-icon="volume_down"
             append-icon="volume_up"
-            @end="setPlayerVolume(childPlayer.player_id, $event)"
-            @click:append="setPlayerVolume(childPlayer.player_id, 'up')"
-            @click:prepend="setPlayerVolume(childPlayer.player_id, 'down')"
+            @end="$server.playerCommand('volume_set', $event, playerId)"
+            @click:append="$server.playerCommand('volume_up', null, childPlayer.player_id)"
+            @click:prepend="s$server.playerCommand('volume_down', null, childPlayer.player_id)"
           ></v-slider>
         </div>
       </div>
@@ -86,19 +78,6 @@ export default Vue.extend({
   },
   mounted () { },
   methods: {
-    setPlayerVolume: function (playerId, newVolume) {
-      if (newVolume === 'up') {
-        this.$server.playerCommand('volume_up', null, playerId)
-      } else if (newVolume === 'down') {
-        this.$server.playerCommand('volume_down', null, playerId)
-      } else {
-        this.$server.playerCommand('volume_set', newVolume, playerId)
-        // this.players[playerId].volume_level = newVolume
-      }
-    },
-    togglePlayerPower: function (playerId) {
-      this.$server.playerCommand('power_toggle', null, playerId)
-    }
   }
 })
 </script>

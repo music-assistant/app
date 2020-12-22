@@ -157,6 +157,7 @@ export default {
       // Support for frontend included in the server build
       let serverAddress = window.location.href
       serverAddress = serverAddress.split('#')[0] // strip off router path
+      serverAddress = serverAddress.replace('8080', '8095') // dev
       if (!serverAddress.endsWith('/')) {
         serverAddress = serverAddress + '/'
       }

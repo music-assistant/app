@@ -81,6 +81,7 @@
                   v-if="streamDetails.bit_depth > 16"
                   :src="require('../assets/hires.png')"
                   height="25"
+                  :style="$vuetify.theme.dark ? 'filter: invert(100%);margin-right:10px' : 'margin-right:10px'"
                 />
                 <v-img
                   contain
@@ -166,7 +167,7 @@
       </v-list-item>
 
       <!-- progress bar and time details -->
-      <span v-if="!$store.state.isMobile" class="right caption" style="color:grey;margin-right:15px;margin-top:-30px">{{ playerCurTimeStr }} / {{ playerTotalTimeStr }}</span>
+      <span v-if="!$store.state.isMobile" class="right caption" style="position:absolute;width:80px;color:grey;right:15px;margin-top:-30px">{{ playerCurTimeStr }} / {{ playerTotalTimeStr }}</span>
       <div :style="`height:10px;margin-left:15px;margin-right:15px;width:${progressBarWidth}px;`">
         <v-progress-linear
           :value="progress"
@@ -323,7 +324,6 @@
   -webkit-filter: blur(20px);
   /* Center and scale the image nicely */
   background-position: center;
-  background-repeat: no-repeat;
   background-size: cover;
 }
 </style>
