@@ -179,8 +179,7 @@ const server = new Vue({
       this.sendWsCommand('library/radios')
       this.sendWsCommand('images/provider-icons')
       this.sendWsCommand('config')
-      // register audio player
-      // this.$mediaPlayer.registerAudioPlayer()
+      this.$emit('connected')
     },
 
     async _onServerError (msg) {

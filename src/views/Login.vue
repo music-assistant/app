@@ -106,6 +106,7 @@
                 :rules="validatePassword"
                 :disabled="!selectedServer"
                 name="password"
+                @keyup.enter="submitLogin()"
               ></v-text-field>
               <v-checkbox
                 v-model="permanentSession"
