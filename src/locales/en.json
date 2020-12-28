@@ -31,6 +31,7 @@
   "config"            : {
     "enabled"                          : "Enabled",
     "base"                             : "Generic settings",
+    "security"                         : "Security",
     "player_providers"                 : "Player providers",
     "music_providers"                  : "Music providers",
     "metadata_providers"               : "Metadata providers",

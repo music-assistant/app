@@ -31,6 +31,7 @@
   "config"            : {
     "enabled"                          : "Ingeschakeld",
     "base"                             : "Algemene instellingen",
+    "security"                         : "Beveiliging",
     "player_providers"                 : "Speler providers",
     "music_providers"                  : "Muziek providers",
     "metadata_providers"               : "Metadata providers",

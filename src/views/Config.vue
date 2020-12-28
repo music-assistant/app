@@ -57,6 +57,7 @@
                   :src="getProviderIcon(getPlayer(conf_key).provider_id)"
                   style="border-radius:5px;border: 1px solid rgba(0,0,0,.85);"
                 />
+                <v-icon v-if="configKey == 'security'">mdi-shield-lock</v-icon>
               </v-list-item-avatar>
               <v-list-item-content>
                 <v-list-item-title v-if="conf_value['__name__']">{{ conf_value['__name__']['label'] }}</v-list-item-title>
@@ -155,6 +156,16 @@
                   ></v-text-field>
                 </template>
               </v-slider>
+              <!-- special: dict -->
+              <v-switch
+              v-if="conf_item_value['entry_type'] == 'dict' && conf_key == 'app_tokens'"
+              value="true"
+              :label="$t(conf_item_value['label'])"
+              :hint="'Last login: ' + dateStrFromTimestamp(conf_item_value['value']['last_login'])"
+              persistent-hint
+              @change="revokeAppToken(conf_item_key)"
+              >
+              </v-switch>
             </v-list-item>
           </v-list>
           <v-divider></v-divider>
@@ -175,6 +186,10 @@ export default {
         base: {
           label: this.$t('config.base'),
           icon: 'mdi-tune'
+        },
+        security: {
+          label: this.$t('config.security'),
+          icon: 'mdi-shield-lock'
         },
         music_providers: {
           label: this.$t('config.music_providers'),
@@ -247,6 +262,16 @@ export default {
         }
       }
       return newDict
+    },
+    revokeAppToken (clientId) {
+      if (confirm('Are you sure you want to revoke this app ?')) {
+        this.$server.sendWsCommand('revoke_token', { client_id: clientId })
+      }
+    },
+    dateStrFromTimestamp (timestamp) {
+      if (!timestamp) return 'never'
+      var s = new Date(timestamp * 1000).toLocaleDateString('en-US')
+      return s
     }
   }
 }
