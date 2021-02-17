@@ -41,67 +41,8 @@ export default {
     }
   },
   created () {
-    // request itemdetails from server
-    this.$server.sendWsCommand(`${this.media_type}/${this.provider}/${this.item_id}`)
-
-    if (this.media_type === 'artists') {
-      // artist details
-      this.tabs = [
-        {
-          label: 'artist_toptracks',
-          endpoint: `artists/${this.provider}/${this.item_id}/tracks`,
-          media_type: 'tracks',
-          items: []
-        },
-        {
-          label: 'artist_albums',
-          endpoint: `artists/${this.provider}/${this.item_id}/albums`,
-          media_type: 'albums',
-          items: []
-        }
-      ]
-    } else if (this.media_type === 'albums') {
-      // album details
-      this.tabs = [
-        {
-          label: 'album_tracks',
-          endpoint: `albums/${this.provider}/${this.item_id}/tracks`,
-          media_type: 'albumtracks',
-          items: []
-        },
-        {
-          label: 'album_versions',
-          endpoint: `albums/${this.provider}/${this.item_id}/versions`,
-          media_type: 'albums',
-          items: []
-        }
-      ]
-    } else if (this.media_type === 'tracks') {
-      // track details
-      this.tabs = [
-        {
-          label: 'track_versions',
-          endpoint: `tracks/${this.provider}/${this.item_id}/versions`,
-          media_type: 'tracks',
-          items: []
-        }
-      ]
-    } else if (this.media_type === 'playlists') {
-      // playlist details
-      this.tabs = [
-        {
-          label: 'playlist_tracks',
-          endpoint: `playlists/${this.provider}/${this.item_id}/tracks`,
-          media_type: 'playlisttracks',
-          items: []
-        }
-      ]
-    }
-    for (const tab of this.tabs) {
-      this.$server.sendWsCommand(tab.endpoint, null, function (res) {
-        tab.items = res
-      })
-    }
+    this.getListing()
+    this.$server.$on('refresh_listing', this.getListing)
   },
   computed: {
     ...mapGetters(['getArtist', 'getAlbum', 'getTrack', 'getPlaylist', 'getRadio']),
@@ -115,6 +56,70 @@ export default {
     }
   },
   methods: {
+
+    getListing () {
+      // request itemdetails from server
+      this.$server.sendWsCommand(`${this.media_type}/${this.provider}/${this.item_id}`)
+
+      if (this.media_type === 'artists') {
+      // artist details
+        this.tabs = [
+          {
+            label: 'artist_toptracks',
+            endpoint: `artists/${this.provider}/${this.item_id}/tracks`,
+            media_type: 'tracks',
+            items: []
+          },
+          {
+            label: 'artist_albums',
+            endpoint: `artists/${this.provider}/${this.item_id}/albums`,
+            media_type: 'albums',
+            items: []
+          }
+        ]
+      } else if (this.media_type === 'albums') {
+      // album details
+        this.tabs = [
+          {
+            label: 'album_tracks',
+            endpoint: `albums/${this.provider}/${this.item_id}/tracks`,
+            media_type: 'albumtracks',
+            items: []
+          },
+          {
+            label: 'album_versions',
+            endpoint: `albums/${this.provider}/${this.item_id}/versions`,
+            media_type: 'albums',
+            items: []
+          }
+        ]
+      } else if (this.media_type === 'tracks') {
+      // track details
+        this.tabs = [
+          {
+            label: 'track_versions',
+            endpoint: `tracks/${this.provider}/${this.item_id}/versions`,
+            media_type: 'tracks',
+            items: []
+          }
+        ]
+      } else if (this.media_type === 'playlists') {
+      // playlist details
+        this.tabs = [
+          {
+            label: 'playlist_tracks',
+            endpoint: `playlists/${this.provider}/${this.item_id}/tracks`,
+            media_type: 'playlisttracks',
+            items: []
+          }
+        ]
+      }
+      for (const tab of this.tabs) {
+        this.$server.sendWsCommand(tab.endpoint, null, function (res) {
+          tab.items = res
+        })
+      }
+    }
   }
 }
 </script>

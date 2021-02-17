@@ -118,7 +118,7 @@ export default {
     PanelviewItem
   },
   props: [
-    'mediatype',
+    'media_type',
     'items'
   ],
   data () {
@@ -131,19 +131,19 @@ export default {
     }
   },
   created () {
-    if (this.mediatype === 'playlisttracks') {
+    if (this.media_type === 'playlisttracks') {
       // playlist tracks
       this.sortKeys.push({ text: this.$t('sort_position'), value: 'position' })
       this.sortKeys.push({ text: this.$t('sort_artist'), value: 'artists[0].name' })
       this.sortKeys.push({ text: this.$t('sort_album'), value: 'album.name' })
       this.sortBy = 'position'
       this.viewMode = 'list'
-    } else if (this.mediatype === 'tracks') {
+    } else if (this.media_type === 'tracks') {
       // tracks listing
       this.sortKeys.push({ text: this.$t('sort_artist'), value: 'artists[0].name' })
       this.sortKeys.push({ text: this.$t('sort_album'), value: 'album.name' })
       this.viewMode = 'list'
-    } else if (this.mediatype === 'albums') {
+    } else if (this.media_type === 'albums') {
       // albums listing
       this.sortKeys.push({ text: this.$t('sort_artist'), value: 'artist.name' })
       this.sortKeys.push({ text: this.$t('sort_date'), value: 'year' })
@@ -152,7 +152,7 @@ export default {
       this.viewMode = 'list'
     }
     // get stored viewMode for this mediatype
-    const viewMode = localStorage.getItem('viewMode' + this.mediatype)
+    const viewMode = localStorage.getItem('viewMode' + this.media_type)
     if (viewMode !== null) {
       this.viewMode = viewMode
     }
@@ -169,7 +169,7 @@ export default {
     toggleViewMode () {
       if (this.viewMode === 'panel') this.viewMode = 'list'
       else this.viewMode = 'panel'
-      localStorage.setItem('viewMode' + this.mediatype, this.viewMode)
+      localStorage.setItem('viewMode' + this.media_type, this.viewMode)
     },
     filteredItems (items, search) {
       if (!search) return items

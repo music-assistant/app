@@ -39,7 +39,7 @@
             :value="Math.round(childPlayer.volume_level)"
             prepend-icon="volume_down"
             append-icon="volume_up"
-            @end="$server.playerCommand('volume_set', $event, childPlayer.playerId)"
+            @end="$server.playerCommand('volume_set', $event, childPlayer.player_id)"
             @click:append="$server.playerCommand('volume_up', null, childPlayer.player_id)"
             @click:prepend="$server.playerCommand('volume_down', null, childPlayer.player_id)"
           ></v-slider>

@@ -12,6 +12,7 @@ export default new Vuex.Store({
     notification: { content: '' },
     windowTitle: 'Home',
     showNavigationMenu: false,
+    showLoadingSpinner: false,
     showPlayersMenu: false,
     topBarTransparent: false,
     topBarContextItem: null,

@@ -9,7 +9,7 @@
       <PlayerOSD :showPlayerSelect="showPlayerSelect" />
       <ContextMenu/>
       <PlayerSelect/>
-      <v-overlay :value="!$server.connected">
+      <v-overlay :value="!$server.connected || $store.state.showLoadingSpinner" style="z-index: 9999">
         <v-progress-circular indeterminate size="64"></v-progress-circular>
       </v-overlay>
     </v-main>

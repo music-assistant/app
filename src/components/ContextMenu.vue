@@ -78,10 +78,11 @@ export default Vue.extend({
       this.playlists = []
       if (!mediaItem) return
       this.curItem = mediaItem
+      this.curPlaylist = null
       const curBrowseContext = this.$store.state.topBarContextItem
       const menuItems = []
       // show info
-      if (mediaItem !== curBrowseContext) {
+      if (mediaItem !== curBrowseContext && this.itemIsAvailable(mediaItem)) {
         menuItems.push({
           label: 'show_info',
           action: 'info',
@@ -89,7 +90,7 @@ export default Vue.extend({
         })
       }
       // add to library
-      if (!mediaItem.in_library) {
+      if (!mediaItem.in_library && this.itemIsAvailable(mediaItem)) {
         menuItems.push({
           label: 'add_library',
           action: 'toggle_library',
@@ -116,7 +117,7 @@ export default Vue.extend({
         }
       }
       // add to playlist action (tracks only)
-      if (mediaItem.media_type === 'track') {
+      if (mediaItem.media_type === 'track' && this.itemIsAvailable(mediaItem)) {
         menuItems.push({
           label: 'add_playlist',
           action: 'add_playlist',
@@ -124,11 +125,13 @@ export default Vue.extend({
         })
       }
       // refresh item
-      menuItems.push({
-        label: 'refresh_item',
-        action: 'refresh_item',
-        icon: 'refresh'
-      })
+      if (this.itemIsAvailable(mediaItem)) {
+        menuItems.push({
+          label: 'refresh_item',
+          action: 'refresh_item',
+          icon: 'refresh'
+        })
+      }
       this.menuItems = menuItems
       this.header = mediaItem.name
       this.subheader = ''
@@ -138,7 +141,7 @@ export default Vue.extend({
       // show playmenu items for the given mediaItem
       this.playlists = []
       this.curItem = mediaItem
-      if (!mediaItem) return
+      if (!mediaItem || !this.itemIsAvailable(mediaItem)) return
       const menuItems = [
         {
           label: 'play_now',
@@ -212,10 +215,12 @@ export default Vue.extend({
         this.visible = false
       } else if (cmd === 'refresh_item') {
         // refresh details for media item
+        this.$store.state.showLoadingSpinner = true
         const endpoint = `${this.curItem.media_type}s/${this.curItem.provider}/${this.curItem.item_id}`
         this.$server.sendWsCommand(endpoint, { refresh: true, lazy: false }, function (res) {
           this.curItem = res
           this.visible = false
+          this.$store.state.showLoadingSpinner = false
         }.bind(this))
       } else {
         // assume play command
@@ -225,15 +230,29 @@ export default Vue.extend({
     },
     addToPlaylist (playlistObj) {
       /// add track to playlist
+      this.$store.state.showLoadingSpinner = true
       const endpoint = 'library/playlists/' + playlistObj.item_id + '/tracks/add'
-      this.$server.sendWsCommand(endpoint, { tracks: [this.curItem] })
-      this.visible = false
+      this.$server.sendWsCommand(endpoint, { tracks: [this.curItem] }, function (res) {
+        this.$server.$emit('refresh_listing')
+        this.visible = false
+        this.$store.state.showLoadingSpinner = false
+      }.bind(this))
     },
     removeFromPlaylist (track, playlistId) {
       /// remove track from playlist
+      this.$store.state.showLoadingSpinner = true
       const endpoint = 'library/playlists/' + playlistId + '/tracks/remove'
-      this.$server.sendWsCommand(endpoint, { tracks: [this.curItem] })
-      this.visible = false
+      this.$server.sendWsCommand(endpoint, { tracks: [this.curItem] }, function (res) {
+        this.$server.$emit('refresh_listing')
+        this.visible = false
+        this.$store.state.showLoadingSpinner = false
+      }.bind(this))
+    },
+    itemIsAvailable (item) {
+      for (const x of item.provider_ids) {
+        if (x.available) return true
+      }
+      return false
     }
   }
 })
