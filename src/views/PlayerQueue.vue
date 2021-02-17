@@ -122,7 +122,7 @@
       v-model="showPlayMenu"
       max-width="500px"
     >
-      <v-card>
+      <v-card @click="showPlayMenu=false">
         <v-subheader class="title">{{ selectedItem.name }}</v-subheader>
         <v-list>
           <v-list-item @click="sendQueueCommand('play_index/' + selectedItem.queue_item_id)">

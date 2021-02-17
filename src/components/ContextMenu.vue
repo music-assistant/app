@@ -226,16 +226,14 @@ export default Vue.extend({
     addToPlaylist (playlistObj) {
       /// add track to playlist
       const endpoint = 'library/playlists/' + playlistObj.item_id + '/tracks/add'
-      this.$server.sendWsCommand(endpoint, { tracks: [this.curItem] }, function (res) {
-        this.visible = false
-      }.bind(this))
+      this.$server.sendWsCommand(endpoint, { tracks: [this.curItem] })
+      this.visible = false
     },
     removeFromPlaylist (track, playlistId) {
       /// remove track from playlist
       const endpoint = 'library/playlists/' + playlistId + '/tracks/remove'
-      this.$server.sendWsCommand(endpoint, { tracks: [this.curItem] }, function (res) {
-        this.visible = false
-      }.bind(this))
+      this.$server.sendWsCommand(endpoint, { tracks: [this.curItem] })
+      this.visible = false
     }
   }
 })

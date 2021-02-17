@@ -41,7 +41,7 @@
             append-icon="volume_up"
             @end="$server.playerCommand('volume_set', $event, childPlayer.playerId)"
             @click:append="$server.playerCommand('volume_up', null, childPlayer.player_id)"
-            @click:prepend="s$server.playerCommand('volume_down', null, childPlayer.player_id)"
+            @click:prepend="$server.playerCommand('volume_down', null, childPlayer.player_id)"
           ></v-slider>
         </div>
       </div>
