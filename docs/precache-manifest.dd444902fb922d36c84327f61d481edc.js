@@ -1,18 +1,18 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "a0bfea817547cc34417a",
+    "revision": "e584b2a213e8ec74d8d4",
     "url": "css/app.7da1f18b.css"
   },
   {
-    "revision": "7e51e5d8ac051964fa77",
+    "revision": "72c344756045bc821ab5",
     "url": "css/browse~itemdetails.79d95f61.css"
   },
   {
-    "revision": "6d2b6dfd454d15e558b4",
+    "revision": "79d847562341201c5418",
     "url": "css/chunk-vendors.a5d6386e.css"
   },
   {
-    "revision": "4d7af81b4d139619dbf3",
+    "revision": "17c18d249c39ef87e933",
     "url": "css/itemdetails.e95b6505.css"
   },
   {
@@ -168,48 +168,48 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "img/web.798ba28f.png"
   },
   {
-    "revision": "e14efec78e185c2718479d3fc9f76ec8",
+    "revision": "6f16b88b417467fbd787170a5b602f42",
     "url": "index.html"
   },
   {
-    "revision": "a0bfea817547cc34417a",
-    "url": "js/app.a089af21.js"
+    "revision": "e584b2a213e8ec74d8d4",
+    "url": "js/app.6d9ce966.js"
   },
   {
-    "revision": "72a3d07c29d47933949f",
-    "url": "js/browse.1bf80ae2.js"
+    "revision": "fe4e5a977950eb364cb6",
+    "url": "js/browse.a8658813.js"
   },
   {
-    "revision": "7e51e5d8ac051964fa77",
-    "url": "js/browse~itemdetails.a66de62d.js"
+    "revision": "72c344756045bc821ab5",
+    "url": "js/browse~itemdetails.e8fbd820.js"
   },
   {
-    "revision": "6d2b6dfd454d15e558b4",
-    "url": "js/chunk-vendors.513c2c8a.js"
+    "revision": "79d847562341201c5418",
+    "url": "js/chunk-vendors.ffc67bcf.js"
   },
   {
-    "revision": "0d84813847e918736637",
-    "url": "js/config.6e5e4d74.js"
+    "revision": "41649866ac4e078f4ec7",
+    "url": "js/config.233b2325.js"
   },
   {
-    "revision": "a3ae6643db6f7c3c8bd7",
-    "url": "js/home.3c34c0cb.js"
+    "revision": "c19a7a73c5ea74419a31",
+    "url": "js/home.806ff88d.js"
   },
   {
-    "revision": "4d7af81b4d139619dbf3",
-    "url": "js/itemdetails.f16c80b6.js"
+    "revision": "17c18d249c39ef87e933",
+    "url": "js/itemdetails.d83e345e.js"
   },
   {
     "revision": "b4f3141618bd7830c290",
     "url": "js/itemdetails~playerqueue~search.28f1a964.js"
   },
   {
-    "revision": "acb3903a8b6d1bfa797a",
-    "url": "js/playerqueue.3ddcebeb.js"
+    "revision": "37207386851e02f17610",
+    "url": "js/playerqueue.98186c83.js"
   },
   {
-    "revision": "2e40da3e88a66cd33de9",
-    "url": "js/search.2a519358.js"
+    "revision": "dc14b0ec8d11c10f5934",
+    "url": "js/search.bc9f8d78.js"
   },
   {
     "revision": "c93d318ec22138832730289be28caa77",
